@@ -32,4 +32,4 @@ process.on('exit', function (code) {
 }); // about to exit with code: 0
 
 let env = typeof window === 'undefined' ? 'node.js' : 'browser';
-console.log(`environment: ${env}`); // environment: browser
+console.log(`environment: ${env}`); // environment: node.js
