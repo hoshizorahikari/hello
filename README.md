@@ -8,6 +8,12 @@ def hello(name):
     print('hello, {}!'.format(name))
 ```
 
-#### 在下才是master的dev
+---
+#### 来自小伙伴的问候
+```javascript
+console.log('hello friend!');
+```
+
+### --- 呵呵 ---
 
 
