@@ -9,3 +9,4 @@ def hello(name):
 ```
 
 ### bug fixed
+### hello, friend!
