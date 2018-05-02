@@ -1,35 +1,35 @@
-from flask import Flask
-from flask import request
-from flask_script import Manager
+from flask import Flask, render_template
+from flask_bootstrap import Bootstrap
+from flask_moment import Moment
+from datetime import datetime
+
 app = Flask(__name__)
-manager=Manager(app)
+bootstrap = Bootstrap(app)
+moment = Moment(app)
 
-#----------------
-dct = {5: 'rin', 6: 'maki', 7: 'nozomi'}
-
-# @app.route('/')
-# def index():
-#     user_agent = request.headers.get('User-Agent')
-#     return '<h1 style=color:red>hello world!</h1><br><p>{}</p>'.format(user_agent)
+# ----------------
 
 
-@app.route('/user/<name>')  # 动态路由
+@app.route('/')
+def index():
+    return render_template('index.html', now=datetime.utcnow())
+
+
+@app.route('/user/<name>')
 def user(name):
-    return '<h1>hello, {}!</h1>'.format(name)
+    return render_template('user.html', name=name)
 
 
-from flask import abort
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
 
 
-@app.route('/user/<int:id>')
-def user1(id):
-    name = dct.get(id)
-    if name is None:
-        abort(404)
-    return '<h1>hello, {}!</h1>'.format(name)
+@app.errorhandler(500)
+def internal_server_error(e):
+    return render_template('500.html'), 500
 
 
 if __name__ == '__main__':
     # 默认端口5000, 可以修改
-    # app.run(debug=True, port=8000)
-    manager.run()
+    app.run(debug=True, port=8000)
