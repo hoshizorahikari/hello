@@ -34,14 +34,29 @@ manager = Manager(app)
 
 from flask_mail import Mail
 # -------------
-app.config['MAIL_SERVER'] = 'smtp.qq.com'
-app.config['MAIL_PORT'] = 465  # SMTP的加密SSL端口
-app.config['MAIL_USE_SSL'] = True
-app.config['MAIL_USE_TLS'] = False
-app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')  # xxx@qq.com
-app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')  # 授权码
+app.config['MAIL_SERVER'] = 'smtp.163.com'
+app.config['MAIL_PORT'] = 25#465  # SMTP的加密SSL端口
+# app.config['MAIL_USE_SSL'] = True
+# app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')  # xxx@163.com
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')  # 授权码, 不是密码
 mail = Mail(app)
 # -----------------
+
+from flask_mail import Message
+app.config['FLASKY_MAIL_SUBJECT_PREFIX'] = '[Flasky]'
+app.config['FLASKY_MAIL_SENDER'] = 'Flasky Admin <flasky@example.com>'
+def send_email(to, subject, template, **kwargs):
+    # to为接收方,subject为邮件主题,template为渲染邮件正文的模板
+    msg = Message(app.config['FLASKY_MAIL_SUBJECT_PREFIX'] + ' ' + subject,
+                  sender=app.config['FLASKY_MAIL_SENDER'], recipients=[to])
+    msg.body = render_template(template + '.txt', **kwargs)
+    msg.html = render_template(template + '.html', **kwargs)
+    mail.send(msg)
+
+#--------
+app.config['FLASKY_ADMIN'] = os.environ.get('FLASKY_ADMIN')
+
 
 
 class NameForm(FlaskForm):  # 一个文本字段和一个提交按钮
@@ -82,6 +97,10 @@ def index():
             user = User(username=form.name.data)
             db.session.add(user)
             session['known'] = False
+            if app.config['FLASKY_ADMIN']:
+                print(app.config['FLASKY_ADMIN'])
+                send_email(app.config['FLASKY_ADMIN'], 'New User', 'mail/new_user', user=user)
+
         else:
             session['known'] = True
         session['name'] = form.name.data  # 获取字段data属性存入session
