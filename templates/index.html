@@ -1,9 +1,10 @@
-{% extends "base.html"%} {# 继承于base.html模板 #} {% block title %}index{% endblock%} 
-
+{% extends "base.html"%} {# 继承于base.html模板 #}
+{% import "bootstrap/wtf.html" as wtf %} 
+{% block title %}index{% endblock%}
 {% block page_content %}
-    <div class="page-header">
-        <h3>时间：{{ moment(now).format('YYYY年MM月DD日 ddd HH:mm:ss') }}</h3>
-        <h3>时间：{{ moment(now).format('LLLL') }}</h3> {# 根据客户端电脑中的时区和区域设置渲染日期和时间 #}
-        <h3>那是{{ moment(now).fromNow(refresh=True) }}。</h3>
-    </div>
+<div class="page-header">
+    <h1>hello, {% if name %}{{ name }}{% else %}Stranger{% endif %}!</h1>
+</div>
+{{ wtf.quick_form(form) }} {# 使用Bootstrap默认样式渲染表单 #}
 {% endblock %}
+
