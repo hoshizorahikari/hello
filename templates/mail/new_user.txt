@@ -1,1 +1,1 @@
-User {{ user.username }} has joined.
+txt: User {{ user.username }} has joined.
