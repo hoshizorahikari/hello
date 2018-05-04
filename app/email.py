@@ -13,7 +13,7 @@ def send_async_mail(app, msg):
 def send_mail(to, subject, template, **kwargs):
     # to为接收方,subject为邮件主题,template为渲染邮件正文的模板
     app = current_app._get_current_object()  # 将app传给子线程?
-    msg = Message(subject, sender=app.config['FLASKY_MAIL_SENDER'], recipients=[to])
+    msg = Message(subject, sender=app.config['MAIL_USERNAME'], recipients=[to])
     msg.body = render_template(template + '.txt', **kwargs)
     msg.html = render_template(template + '.html', **kwargs)
 

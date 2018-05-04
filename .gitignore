@@ -19,7 +19,7 @@ lib
 lib64
 __pycache__
 
-.hikari
+*.hikari
 
 # Installer logs
 pip-log.txt

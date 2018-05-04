@@ -17,7 +17,7 @@ def index():
             session['known'] = False
             admin = current_app.config['FLASKY_ADMIN']
             if admin:
-                send_email(admin, 'New User', 'mail/new_user', user=user)
+                send_mail(admin, 'New User', 'mail/new_user', user=user)
         else:
             session['known'] = True
         session['name'] = form.name.data  # 获取字段data属性存入session

@@ -5,12 +5,12 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 my_mail, my_pwd = None, None
 with open('mail.hikari') as f:
     data = eval(f.read())
-    my_mail = data.get('mail')  # xxx@163.com
+    my_mail = data.get('mail')  # xxx@qq.com
     my_pwd = data.get('password')  # 授权码, 不是密码
 
 
 def get_db_url(a):
-    return os.environ.get('{}_DATABASE_URL'.format(a.upper())) or 'sqlite:///{}'.format(os.path.join(basedir, 'data-{}.sqlite'.format(a)))
+    return os.environ.get('{}DATABASE_URL'.format(a.upper())) or 'sqlite:///{}'.format(os.path.join(basedir, '{}data.sqlite'.format(a)))
 
 
 class Config():  # 父类通用配置
@@ -36,13 +36,13 @@ class Config():  # 父类通用配置
 
 class DevelopmentConfig(Config):  # 开发专用配置
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = get_db_url('dev')
+    SQLALCHEMY_DATABASE_URI = get_db_url('dev_')
     # os.environ.get('DEV_DATABASE_URL') or 'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite')
 
 
 class TestingConfig(Config):  # 测试专用配置
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = get_db_url('test')
+    SQLALCHEMY_DATABASE_URI = get_db_url('test_')
     # os.environ.get('TEST_DATABASE_URL') or 'sqlite:///' + os.path.join(basedir, 'data-test.sqlite')
 
 
