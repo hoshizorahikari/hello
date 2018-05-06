@@ -12,12 +12,7 @@ app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 app_context = app.app_context()  # 激活上下文
 app_context.push()
 db.create_all()  # 创建数据库
-'''
-admin_role=Role(name='Admin')
-user_role=Role(name='User')
-hikari=User(username='hikari',role=admin_role)
-db.session.add_all([admin_role,user_role,hikari])
-'''
+
 manager = Manager(app)
 migrate = Migrate(app, db)
 
