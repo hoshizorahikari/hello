@@ -4,7 +4,7 @@ from . import auth
 from ..models import User
 from .forms import LoginForm, RegistrationForm
 from .. import db
-# from ..email import send_mail
+from ..email import send_mail
 
 
 @auth.route('/login', methods=['GET', 'POST'])
@@ -40,7 +40,12 @@ def register():
         user = User(email=form.email.data,
                     username=form.username.data, password=form.password.data)
         db.session.add(user)
-        # db.session.commit()
-        flash('注册成功！现在可以登录了！')
+        # 即使自动提交,此处也要commit,因为要获取id用于生成确认令牌,不能延后提交
+        db.session.commit()
+        token = user.generate_confirmation_token()
+        send_mail(user.email, 'Confirm Your Account',
+                  'auth/email/confirm', user=user, token=token)
+        flash('A confirmation email has been sent to you by email.')
+        # flash('注册成功！现在可以登录了！')
         return redirect(url_for('auth.login'))
     return render_template('auth/register.html', form=form)
