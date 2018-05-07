@@ -37,6 +37,7 @@
             {# logo区域#}
             <a class="navbar-brand" href="/">Flasky</a>
         </div>
+
         <div class="navbar-collapse collapse">
             {# nav navbar-nav:导航条菜单 #}
             <ul class="nav navbar-nav">
@@ -44,6 +45,15 @@
                     <a href="/">Home</a>
                 </li>
             </ul>
+            {# 登录退出按钮 #}
+            <ul class="nav navbar-nav navbar-right">
+                {% if current_user.is_authenticated %}
+                <li><a href="{{ url_for('auth.logout') }}">退出</a></li>
+                {% else %}
+                <li><a href="{{ url_for('auth.login') }}">登录</a></li>
+                {% endif %}
+            </ul>
+
         </div>
     </div>
 </div>
@@ -70,3 +80,7 @@
 
 
 
+{#% block scripts %}
+{{ super() }}
+{{ moment.include_moment() }}
+{% endblock %#}
