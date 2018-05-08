@@ -18,7 +18,8 @@ class RegistrationForm(FlaskForm):
                         DataRequired(), Length(5, 64), Email()])
     # username = StringField('用户名', validators=[DataRequired(), Length(
     #     2, 20), Regexp('^[A-Za-z][A-Za-z0-9_]{1,19}$', 0, '用户名只能是字母数字下划线！')])
-    username = StringField('用户名', validators=[DataRequired(), Length(2, 20), Regexp('^\w{2,20}$', 0, '用户名只能是字母数字下划线！')])
+    username = StringField('用户名', validators=[DataRequired(), Length(
+        2, 20), Regexp('^\w{2,20}$', 0, '用户名只能是字母数字下划线！')])
     password = PasswordField(
         '输入密码', validators=[DataRequired(), EqualTo('password2', message='密码不一致！')])
     password2 = PasswordField('确认密码', validators=[DataRequired()])
@@ -33,3 +34,40 @@ class RegistrationForm(FlaskForm):
     def validate_username(self, field):
         if User.query.filter_by(username=field.data).first():
             raise ValidationError('用户名已经存在！')
+
+
+class ChangePasswordForm(FlaskForm):
+    # 修改密码表单类
+    old_password = PasswordField('输入原密码', validators=[DataRequired()])
+    password = PasswordField('设置新密码', validators=[
+                             DataRequired(), EqualTo('password2', message='密码不一致')])
+    password2 = PasswordField('确认新密码', validators=[DataRequired()])
+    submit = SubmitField('确认')
+
+
+class PasswordResetRequestForm(FlaskForm):
+    # 重设密码请求表单
+    email = StringField(
+        '邮箱', validators=[DataRequired(), Length(5, 64), Email()])
+    submit = SubmitField('重设密码')
+
+
+class PasswordResetForm(FlaskForm):
+    # 重设密码表单
+    password = PasswordField('设置新密码', validators=[
+                             DataRequired(), EqualTo('password2', message='密码不一致')])
+    password2 = PasswordField('确认新密码', validators=[DataRequired()])
+    submit = SubmitField('确认')
+
+
+class ChangeEmailForm(FlaskForm):
+    # 修改邮箱表单类
+    email = StringField('新邮箱', validators=[
+                        DataRequired(), Length(5, 64), Email()])
+    password = PasswordField('请输入密码', validators=[DataRequired()])
+    submit = SubmitField('确认')
+
+    def validate_email(self, field):
+        # 如果输入邮箱已被注册,抛出异常
+        if User.query.filter_by(email=field.data).first():
+            raise ValidationError('该邮箱已被注册！')

@@ -58,6 +58,51 @@ class User(UserMixin, db.Model):
         self.confirmed = True
         db.session.add(self)
         return True
+    
+    def generate_reset_token(self, expiration=3600):
+        # 生成重置令牌字符串, 默认有效时间1h
+        s = Slzer(current_app.config['SECRET_KEY'], expiration)
+        return s.dumps({'reset': self.id}).decode('utf-8')
+
+    @staticmethod
+    def reset_password(token, new_password):
+        s = Slzer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token.encode('utf-8'))
+        except:
+            return False
+        # 根据令牌获取用户id,查询该用户
+        user = User.query.get(data.get('reset'))
+        if user is None: # 用户不存在
+            return False
+        # 用户存在,重置密码
+        user.password = new_password
+        db.session.add(user)
+        return True
+
+    def generate_email_change_token(self, new_email, expiration=3600):
+        # 生成修改邮箱令牌字符串, 默认有效时间1h
+        s = Slzer(current_app.config['SECRET_KEY'], expiration)
+        return s.dumps(
+            {'change_email': self.id, 'new_email': new_email}).decode('utf-8')
+
+    def change_email(self, token):
+        s = Slzer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token.encode('utf-8'))
+        except:
+            return False
+        # 令牌不属于当前用户,新邮箱为None,新邮箱已经存在都修改失败
+        if data.get('change_email') != self.id:
+            return False
+        new_email = data.get('new_email')
+        if new_email is None:
+            return False
+        if self.query.filter_by(email=new_email).first() is not None:
+            return False
+        self.email = new_email
+        db.session.add(self)
+        return True
 
 
 @login_manager.user_loader
