@@ -1,12 +1,13 @@
-<p>Dear {{ user.username }},</p>
-<p>Welcome to
-    <b>Flasky</b>!</p>
-<p>To confirm your account please
-    <a href="{{ url_for('auth.confirm', token=token, _external=True) }}">click here</a>.</p>
-<p>Alternatively, you can paste the following link in your browser's address bar:</p>
-<p>{{ url_for('auth.confirm', token=token, _external=True) }}</p>
-<p>Sincerely,</p>
-<p>The Flasky Team</p>
+<p>你好, {{ user.username }}!</p>
+<p>欢迎注册
+    <b>hikari app</b>!</p>
 <p>
-    <small>Note: replies to this email address are not monitored.</small>
+    <a href="{{ url_for('auth.confirm', token=token, _external=True) }}">点击此处</a>激活你的账号。</p>
+<p>你也可以将下面链接复制到浏览器的地址栏:</p>
+<p>{{ url_for('auth.confirm', token=token, _external=True) }}</p>
+<hr>
+<p>感谢注册!</p>
+<p>from hikari</p>
+<p>
+    <small>注: hikari是不会看对这封邮件的回复的 !</small>
 </p>

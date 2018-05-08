@@ -38,8 +38,8 @@ class SQLiteHelper():
 
 if __name__ == '__main__':
     s = SQLiteHelper('dev_data.sqlite')
-    # for tup in s.query("select id, username, email from users"):
-    #     print(tup)
-    # s.cud("delete from users where username is null")
+    for tup in s.query("select id, username, email from users"):
+        print(tup)
+    s.cud("delete from users where id=23")
 
  

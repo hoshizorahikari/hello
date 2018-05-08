@@ -43,9 +43,9 @@ def register():
         # 即使自动提交,此处也要commit,因为要获取id用于生成确认令牌,不能延后提交
         db.session.commit()
         token = user.generate_confirmation_token()
-        send_mail(user.email, 'Confirm Your Account',
+        send_mail(user.email, '激活你的账号',
                   'auth/email/confirm', user=user, token=token)
-        flash('A confirmation email has been sent to you by email.')
+        flash('激活邮件已发送至你的邮箱...')
         # flash('注册成功！现在可以登录了！')
         return redirect(url_for('auth.login'))
     return render_template('auth/register.html', form=form)
@@ -58,7 +58,7 @@ def confirm(token):
         return redirect(url_for('main.index'))
     if current_user.confirm(token):
         # db.session.commit()
-        flash('你已经账号已通过认证！')
+        flash('你的账号已通过认证！')
     else:
         flash('认证链接无效或已经过期！')
     return redirect(url_for('main.index'))
@@ -89,9 +89,9 @@ def unconfirmed():
 def resend_confirmation():
     # 重新发送确认邮件,需要用户已登录
     token = current_user.generate_confirmation_token()
-    send_mail(current_user.email, 'Confirm Your Account',
+    send_mail(current_user.email, '激活你的账号',
               'auth/email/confirm', user=current_user, token=token)
-    flash('A new confirmation email has been sent to you by email.')
+    flash('新的激活邮件已发送至你的邮箱...')
     return redirect(url_for('main.index'))
 
 
@@ -122,9 +122,9 @@ def password_reset_request():
         user = User.query.filter_by(email=form.email.data).first()
         if user:  # 生成重置令牌,发送邮件
             token = user.generate_reset_token()
-            send_mail(user.email, 'Reset Your Password', 'auth/email/reset_password',
+            send_mail(user.email, '重置你的密码', 'auth/email/reset_password',
                       user=user, token=token, next=request.args.get('next'))
-        flash('An email with instructions to reset your password has been sent to you.')
+        flash('重置密码链接已发送至你的邮箱。')
         return redirect(url_for('auth.login'))
     return render_template('auth/reset_password.html', form=form)
 
@@ -152,11 +152,10 @@ def change_email_request():
         if current_user.verify_password(form.password.data):
             new_email = form.email.data
             token = current_user.generate_email_change_token(new_email)
-            send_mail(new_email, 'Confirm your email address',
+            send_mail(new_email, '修改你的绑定邮箱',
                       'auth/email/change_email',
                       user=current_user, token=token)
-            flash(
-                'An email with instructions to confirm your new email address has been sent to you.')
+            flash('修改绑定邮箱的链接已经发送至你的邮箱。')
             return redirect(url_for('main.index'))
         else:
             flash('邮箱或密码有误！')
