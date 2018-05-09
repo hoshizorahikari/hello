@@ -5,3 +5,9 @@ main = Blueprint('main', __name__)
 # 导入这两个模块是为了将路由和错误处理与蓝本关联起来
 # 末尾导入为了避免循环导入, 因为views.py和errors.py要导入蓝本main
 from . import views, errors
+from ..models import Permission
+
+
+@main.app_context_processor
+def inject_permission():
+    return dict(Permission=Permission)
