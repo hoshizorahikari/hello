@@ -12,7 +12,7 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         # 根据输入邮箱查询用户
-        user = User.query.filter_by(email=form.email.data).first()
+        user = User.query.filter_by(email=form.email.data.lower()).first()
         # 如果用户存在且密码正确
         if user and user.verify_password(form.password.data):
             login_user(user, form.remember_me.data)
@@ -37,8 +37,8 @@ def logout():  # 登出用户
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
-        user = User(email=form.email.data,
-                    username=form.username.data, password=form.password.data)
+        user = User(email=form.email.data.lower(),
+                    username=form.username.data.lower(), password=form.password.data)
         db.session.add(user)
         # 即使自动提交,此处也要commit,因为要获取id用于生成确认令牌,不能延后提交
         db.session.commit()
@@ -67,12 +67,13 @@ def confirm(token):
 @auth.before_app_request
 def before_request():
     # 用户已登录,未确认,请求端点不在蓝本,请求被拦截,重定向至/unconfirmed
-    if current_user.is_authenticated \
-            and not current_user.confirmed \
-            and request.endpoint \
-            and request.blueprint != 'auth' \
-            and request.endpoint != 'static':
-        return redirect(url_for('auth.unconfirmed'))
+    if current_user.is_authenticated:
+        current_user.ping()  # 登录就刷新最后访问时间
+        if not current_user.confirmed \
+                and request.endpoint \
+                and request.blueprint != 'auth' \
+                and request.endpoint != 'static':
+            return redirect(url_for('auth.unconfirmed'))
 
 
 @auth.route('/unconfirmed')
@@ -119,7 +120,7 @@ def password_reset_request():
         return redirect(url_for('main.index'))
     form = PasswordResetRequestForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
+        user = User.query.filter_by(email=form.email.data.lower()).first()
         if user:  # 生成重置令牌,发送邮件
             token = user.generate_reset_token()
             send_mail(user.email, '重置你的密码', 'auth/email/reset_password',
@@ -150,7 +151,7 @@ def change_email_request():
     form = ChangeEmailForm()
     if form.validate_on_submit():
         if current_user.verify_password(form.password.data):
-            new_email = form.email.data
+            new_email = form.email.data.lower()
             token = current_user.generate_email_change_token(new_email)
             send_mail(new_email, '修改你的绑定邮箱',
                       'auth/email/change_email',

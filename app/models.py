@@ -5,6 +5,9 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from flask import current_app
 from . import db, login_manager
+from datetime import datetime
+import hashlib
+# from flask import request
 
 
 class Permission:  # 用户权限常量
@@ -84,6 +87,17 @@ class User(UserMixin, db.Model):
     role_id = db.Column(db.Integer, db.ForeignKey(
         'roles.id'))  # 外键, roles表中的id
     confirmed = db.Column(db.Boolean, default=False)
+    # 新添加字段
+    name = db.Column(db.String(64))  # 真实姓名
+    location = db.Column(db.String(64))  # 所在地
+    # Text()大文本,不需要指定最大长度
+    about_me = db.Column(db.Text())  # 自我介绍
+    # utcnow没有(),default可以接收函数作为默认值,每次需要默认值都会调用utcnow()
+    member_since = db.Column(db.DateTime(), default=datetime.utcnow)  # 注册时间
+
+    last_seen = db.Column(db.DateTime(), default=datetime.utcnow)  # 最后访问日期
+
+    image = db.Column(db.String) = db.Column(db.String(128)) # 头像链接
 
     # password属性只可写不可读, 因为获取散列值没有意义, 无法还原密码
 
@@ -161,6 +175,7 @@ class User(UserMixin, db.Model):
         if self.query.filter_by(email=new_email).first() is not None:
             return False
         self.email = new_email
+        self.image = self.gravatar()  # 修改邮箱后重新生成头像
         db.session.add(self)
         return True
 
@@ -173,6 +188,7 @@ class User(UserMixin, db.Model):
             # 如果该用户还是没有角色,设为默认普通用户
             if self.role is None:
                 self.role = Role.query.filter_by(default=True).first()
+        self.image = self.gravatar()
 
     def can(self, p):
         # 用户不为None且拥有权限p
@@ -182,6 +198,15 @@ class User(UserMixin, db.Model):
         # 检查用户是不是管理员
         return self.can(Permission.ADMIN)
 
+    def ping(self):
+        self.last_seen = datetime.utcnow()
+        db.session.add(self)
+
+    def gravatar(self, size=100, default='monsterid', rating='g'):
+        # 根据邮箱的md5获取头像URL
+        url = 'https://secure.gravatar.com/avatar'
+        md5 = hashlib.md5(self.email.encode('utf-8')).hexdigest()
+        return '{}/{}?s={}&d={}&r={}'.format(url, md5, size, default, rating)
 
 
 class AnonymousUser(AnonymousUserMixin):

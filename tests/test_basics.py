@@ -10,6 +10,7 @@ class BasicsTestCase(unittest.TestCase):
         self.app_context.push()
         db.create_all()  # 创建数据库
 
+
     def tearDown(self):
         # 删除数据库和上下文
         db.session.remove()
@@ -21,3 +22,4 @@ class BasicsTestCase(unittest.TestCase):
 
     def test_app_is_testing(self):  # 程序是否在测试配置环境运行
         self.assertTrue(current_app.config['TESTING'])
+

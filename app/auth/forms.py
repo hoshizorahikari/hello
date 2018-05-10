@@ -28,11 +28,11 @@ class RegistrationForm(FlaskForm):
     # 自定义验证函数, 如果表单类定义了validate_开头且跟着字段名的方法
     # 此方法与常规验证函数一起调用
     def validate_email(self, field):
-        if User.query.filter_by(email=field.data).first():
+        if User.query.filter_by(email=field.data.lower()).first():
             raise ValidationError('该邮箱已被注册！')
 
     def validate_username(self, field):
-        if User.query.filter_by(username=field.data).first():
+        if User.query.filter_by(username=field.data.lower()).first():
             raise ValidationError('用户名已经存在！')
 
 
@@ -69,5 +69,5 @@ class ChangeEmailForm(FlaskForm):
 
     def validate_email(self, field):
         # 如果输入邮箱已被注册,抛出异常
-        if User.query.filter_by(email=field.data).first():
+        if User.query.filter_by(email=field.data.lower()).first():
             raise ValidationError('该邮箱已被注册！')

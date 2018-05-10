@@ -24,7 +24,7 @@ class SQLiteHelper():
         finally:
             self.close()
 
-    def cud(self, sql, params=()):
+    def execute(self, sql, params=()):
         self.connect()
         try:
             self.cursor.execute(sql, params)
@@ -38,8 +38,16 @@ class SQLiteHelper():
 
 if __name__ == '__main__':
     s = SQLiteHelper('dev_data.sqlite')
-    for tup in s.query("select id, username, email from users"):
-        print(tup)
-    s.cud("delete from users where id=23")
+    ret= s.query("select id, username, email from users")
+    if ret:
+        for tup in ret:
+            print(tup)
+    s.execute('delete from users where username is null')
+    ret= s.query("select id, username, email from users")
+    if ret:
+        for tup in ret:
+            print(tup)
+    
+        
 
  

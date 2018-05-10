@@ -25,7 +25,7 @@ class Config():  # 父类通用配置
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     # FLASKY_MAIL_SUBJECT_PREFIX = '[Flasky]'
     # FLASKY_MAIL_SENDER = 'Flasky Admin <flasky@example.com>'
-    FLASKY_ADMIN = os.environ.get('FLASKY_ADMIN') or 'hikari_python@163.com'
+    FLASKY_ADMIN = os.environ.get('FLASKY_ADMIN') or my_mail
 
     @staticmethod
     def init_app(app):  # 对当前环境配置初始化
