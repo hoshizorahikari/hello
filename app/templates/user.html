@@ -6,13 +6,16 @@
 
 {% block page_content %}
 <div class="page-header">
-    <img class="img-rounded profile-thumbnail" src="{{ user.gravatar(size=256) }}" alt="{{ user.username }}">
+    <img class="img-rounded profile-thumbnail" src="{{ user.image }}">
     <div class="profile-header">
         <h1>{{ user.username }}</h1>
     {# name和location在同一个p标签内渲染 #} {% if user.name or user.location %}
         <p>
-            {% if user.name %}{{ user.name }}{% endif %} {% if user.location %} {# 翻墙吧 #} {# from
-        <a href="http://maps.google.com/?q={{ user.location }}">#}{{ user.location }}{# </a> #} {% endif %}
+            {% if user.name %}{{ user.name }}{% endif %} {% if user.location %} {# 翻墙吧 #} 
+            {# from <a href="http://maps.google.com/?q={{ user.location }}">#}
+               from {{ user.location }}
+                {# </a> #} 
+            {% endif %}
         </p>
         {% endif %} 
         {% if current_user.is_admin() %}

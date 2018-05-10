@@ -1,12 +1,20 @@
 * {
     font-family: "Microsoft Yahei";
 }
-
-.profile-thumbnail {
+/* 个人资料头像缩略图 */
+.profile-thumbnail { 
     position: absolute;
+    width: 256px;
+    height: 256px;
+   
 }
 
 .profile-header {
     min-height: 260px;
     margin-left: 280px;
+}
+/* 右上角超小的缩略图 */
+.tiny-image {
+    width: 20px;
+    height: 20px;
 }

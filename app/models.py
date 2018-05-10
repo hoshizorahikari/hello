@@ -97,7 +97,7 @@ class User(UserMixin, db.Model):
 
     last_seen = db.Column(db.DateTime(), default=datetime.utcnow)  # 最后访问日期
 
-    image = db.Column(db.String) = db.Column(db.String(128)) # 头像链接
+    image = db.Column(db.String(128))  # 头像链接
 
     # password属性只可写不可读, 因为获取散列值没有意义, 无法还原密码
 
@@ -175,7 +175,8 @@ class User(UserMixin, db.Model):
         if self.query.filter_by(email=new_email).first() is not None:
             return False
         self.email = new_email
-        self.image = self.gravatar()  # 修改邮箱后重新生成头像
+        if 'gravatar.com' in self.image: # 自定义头像的不改
+            self.image = self.gravatar(size=256)  # 修改邮箱后重新生成头像
         db.session.add(self)
         return True
 
@@ -188,7 +189,7 @@ class User(UserMixin, db.Model):
             # 如果该用户还是没有角色,设为默认普通用户
             if self.role is None:
                 self.role = Role.query.filter_by(default=True).first()
-        self.image = self.gravatar()
+        self.image = self.gravatar(size=256)
 
     def can(self, p):
         # 用户不为None且拥有权限p
@@ -204,7 +205,7 @@ class User(UserMixin, db.Model):
 
     def gravatar(self, size=100, default='monsterid', rating='g'):
         # 根据邮箱的md5获取头像URL
-        url = 'https://secure.gravatar.com/avatar'
+        url = 'https://www.gravatar.com/avatar'
         md5 = hashlib.md5(self.email.encode('utf-8')).hexdigest()
         return '{}/{}?s={}&d={}&r={}'.format(url, md5, size, default, rating)
 

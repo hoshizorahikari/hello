@@ -56,6 +56,7 @@ def edit_profile_admin(id):
         user.name = form.name.data
         user.location = form.location.data
         user.about_me = form.about_me.data
+        user.image = form.image.data
         db.session.add(user)
         # db.session.commit()
         flash('修改成功！')
@@ -67,25 +68,8 @@ def edit_profile_admin(id):
     form.name.data = user.name
     form.location.data = user.location
     form.about_me.data = user.about_me
+    form.image.data = user.image
     # 管理员资料编辑和普通用户使用同一个模板
     return render_template('edit_profile.html', form=form, user=user)
 
 
-# @main.route('/', methods=['GET', 'POST'])  # 支持GET和POST
-# def index():
-#     form = NameForm()
-#     if form.validate_on_submit():  # 提交表单,数据被验证函数接受
-#         user = User.query.filter_by(username=form.name.data).first()  # 数据库查询
-#         if user is None:  # 数据库不存在用户则添加
-#             user = User(username=form.name.data)
-#             db.session.add(user)
-#             session['known'] = False
-#             admin = current_app.config['FLASKY_ADMIN']
-#             if admin:
-#                 send_mail(admin, 'New User', 'mail/new_user', user=user)
-#         else:
-#             session['known'] = True
-#         session['name'] = form.name.data  # 获取字段data属性存入session
-#         # 蓝本端点自动添加命名空间, 为main.index; 当前蓝本简写为.index
-#         return redirect(url_for('.index'))  # 重定向, GET方式请求index
-#     return render_template('index.html', form=form, name=session.get('name'), known=session.get('known', False))

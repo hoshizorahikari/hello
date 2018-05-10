@@ -11,8 +11,8 @@ class NameForm(FlaskForm):  # 一个文本字段和一个提交按钮
 
 
 class EditProfileForm(FlaskForm):  # 用户编辑资料的表单
-    name = StringField('真实姓名', validators=[Length(1, 64)])
-    location = StringField('所在地', validators=[Length(1, 64)])
+    name = StringField('真实姓名', validators=[Length(0, 64)])
+    location = StringField('所在地', validators=[Length(0, 64)])
     about_me = TextAreaField('个人简介')
     submit = SubmitField('提交')
 
@@ -29,6 +29,7 @@ class EditProfileAdminForm(FlaskForm):  # 管理员使用的资料编辑表单�
     name = StringField('真实姓名', validators=[Length(0, 64)])
     location = StringField('所在地', validators=[Length(0, 64)])
     about_me = TextAreaField('个人简介')
+    image=StringField('头像链接')
     submit = SubmitField('提交')
 
     def __init__(self, user, *args, **kwargs):
