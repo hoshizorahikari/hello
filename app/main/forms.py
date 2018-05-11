@@ -29,7 +29,7 @@ class EditProfileAdminForm(FlaskForm):  # 管理员使用的资料编辑表单�
     name = StringField('真实姓名', validators=[Length(0, 64)])
     location = StringField('所在地', validators=[Length(0, 64)])
     about_me = TextAreaField('个人简介')
-    image=StringField('头像链接')
+    image = StringField('头像链接')
     submit = SubmitField('提交')
 
     def __init__(self, user, *args, **kwargs):
@@ -50,3 +50,8 @@ class EditProfileAdminForm(FlaskForm):  # 管理员使用的资料编辑表单�
         if field.data.lower() != self.user.username \
                 and User.query.filter_by(username=field.data).first():
             raise ValidationError('用户名已经存在！')
+
+
+class BlogForm(FlaskForm):  # 撰写博客表单类
+    body = TextAreaField('写点什么吧...', validators=[DataRequired()])
+    submit = SubmitField('提交')

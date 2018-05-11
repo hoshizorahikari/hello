@@ -1,22 +1,44 @@
-from flask import render_template, abort, flash, url_for, redirect
-from ..models import User, Role
+from flask import render_template, abort, flash, url_for, redirect, request, current_app
+from ..models import User, Role, Permission, Blog
 from . import main
 from flask_login import login_required, current_user
-from .forms import EditProfileForm, EditProfileAdminForm
+from .forms import EditProfileForm, EditProfileAdminForm, BlogForm
 from .. import db
 from ..decorators import admin_required
 
 
-@main.route('/')
+@main.route('/', methods=['GET', 'POST'])
 def index():
-    return render_template('index.html')
+    form = BlogForm()
+    # 是否有写博客的权限
+    if current_user.can(Permission.WRITE) and form.validate_on_submit():
+        blog = Blog(body=form.body.data,
+                    author=current_user._get_current_object())
+        db.session.add(blog)
+        # db.session.commit()
+        return redirect(url_for('.index'))
+    # 分页
+    # 查询字符串(request.args)获取页数,默认第1页;type=int保证参数无法转为int时返回默认值
+    page = request.args.get('page', 1, type=int)
+    # page为第几页;per_page为每页几个记录,默认20;
+    # error_out默认为True,表示页数超过范围404错误,False则返回空列表
+    pagination = Blog.query.order_by(Blog.timestamp.desc()).paginate(
+        page, per_page=current_app.config['BLOGS_PER_PAGE'], error_out=False)
+    blogs = pagination.items
+
+    # 按时间戳降序, 最近的靠前
+    # blogs = Blog.query.order_by(Blog.timestamp.desc()).all()
+    return render_template('index.html', form=form, blogs=blogs,
+                           pagination=pagination)
 
 
 @main.route('/user/<username>')
 def user(username):
     # 根据用户名查询用户对象,没有返回404
     user = User.query.filter_by(username=username).first_or_404()
-    return render_template('user.html', user=user)
+    # 查询该用户的文章列表, 按时间戳降序
+    blogs = user.blogs.order_by(Blog.timestamp.desc()).all()
+    return render_template('user.html', user=user, blogs=blogs)
 
 
 @main.route('/edit_profile', methods=['GET', 'POST'])
@@ -71,5 +93,3 @@ def edit_profile_admin(id):
     form.image.data = user.image
     # 管理员资料编辑和普通用户使用同一个模板
     return render_template('edit_profile.html', form=form, user=user)
-
-

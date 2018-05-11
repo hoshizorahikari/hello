@@ -38,7 +38,7 @@ class SQLiteHelper():
 
 if __name__ == '__main__':
     s = SQLiteHelper('dev_data.sqlite')
-    ret= s.query("select id, username, email,image from users")
+    ret= s.query("select * from users")
     if ret:
         for tup in ret:
             print(tup)

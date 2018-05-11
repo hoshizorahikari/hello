@@ -1,18 +1,26 @@
-{% extends "base.html"%} {# 继承于base.html模板 #}
-{#% import "bootstrap/wtf.html" as wtf %#} 
-
-{% block title %}hikari app{% endblock%}
+{% extends "base.html" %} {# 继承于base.html模板 #} 
+{% import "bootstrap/wtf.html" as wtf %} 
+{% block title %}hikari app{% endblock %}
 
 {% block page_content %}
 <div class="page-header">
-    <h1>Hello, 
-        {% if current_user.is_authenticated %}
-            {{ current_user.username }}
-        {% else %}
-            Stranger
+    <h1>
+        Hello, 
+        {% if current_user.is_authenticated %} 
+            {{ current_user.username }} 
+        {% else %} 
+            Stranger 
         {% endif %}!
     </h1>
 </div>
-{#{ wtf.quick_form(form) }} {# 使用Bootstrap默认样式渲染表单 #}
-{% endblock %}
 
+{# 用户有写文章权利,显示此表单 #}
+<div>
+    {% if current_user.can(Permission.WRITE) %}
+        {{ wtf.quick_form(form)}} 
+    {% endif %}
+</div>
+
+{% include '_blogs.html'%}
+
+{% endblock %}

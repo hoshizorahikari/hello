@@ -98,6 +98,7 @@ class User(UserMixin, db.Model):
     last_seen = db.Column(db.DateTime(), default=datetime.utcnow)  # 最后访问日期
 
     image = db.Column(db.String(128))  # 头像链接
+    blogs = db.relationship('Blog', backref='author', lazy='dynamic')
 
     # password属性只可写不可读, 因为获取散列值没有意义, 无法还原密码
 
@@ -175,7 +176,7 @@ class User(UserMixin, db.Model):
         if self.query.filter_by(email=new_email).first() is not None:
             return False
         self.email = new_email
-        if 'gravatar.com' in self.image: # 自定义头像的不改
+        if 'gravatar.com' in self.image:  # 自定义头像的不改
             self.image = self.gravatar(size=256)  # 修改邮箱后重新生成头像
         db.session.add(self)
         return True
@@ -210,6 +211,7 @@ class User(UserMixin, db.Model):
         return '{}/{}?s={}&d={}&r={}'.format(url, md5, size, default, rating)
 
 
+
 class AnonymousUser(AnonymousUserMixin):
     def can(self, p):
         return False
@@ -225,3 +227,14 @@ login_manager.anonymous_user = AnonymousUser
 def load_user(user_id):
     # user_id为Unicode字符串表示的用户标识符, 如果有此用户返回用户对象; 否则返回None
     return User.query.get(int(user_id))
+
+
+class Blog(db.Model):
+    __tablename__ = 'blogs'
+    id = db.Column(db.Integer, primary_key=True)
+    body = db.Column(db.Text)  # 博客正文
+    timestamp = db.Column(db.DateTime, index=True,
+                          default=datetime.utcnow)  # 创建时间
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+
+
