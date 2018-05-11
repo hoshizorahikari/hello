@@ -9,34 +9,47 @@
     <img class="img-rounded profile-thumbnail" src="{{ user.image }}">
     <div class="profile-header">
         <h1>{{ user.username }}</h1>
-    {# name和location在同一个p标签内渲染 #} {% if user.name or user.location %}
-        <p>
-            {% if user.name %}{{ user.name }}{% endif %} {% if user.location %} {# 翻墙吧 #} 
-            {# from <a href="http://maps.google.com/?q={{ user.location }}">#}
-               from {{ user.location }}
-                {# </a> #} 
-            {% endif %}
-        </p>
+    {# name和location在同一个p标签内渲染 #} 
+        {% if user.name or user.location %}
+            <p>
+                {% if user.name %}
+                    {{ user.name }}
+                {% endif %} 
+                {% if user.location %} {# 翻墙吧 #} 
+                {# from <a href="http://maps.google.com/?q={{ user.location }}">#}
+                    from {{ user.location }}
+                    {# </a> #} 
+                {% endif %}
+            </p>
         {% endif %} 
+
         {% if current_user.is_admin() %}
-            <p>管理员：{{ user.email }}</p>
-    {# 此句意义何在? #} {#
-    <p>
-        <a href="mailto:{{ user.email }}">{{ user.email }}</a>
-    </p> #} 
+            {# 登录用户为管理员, 可以给该页面用户发邮件? #} 
+            <p>
+                <a href="mailto:{{ user.email }}">{{ user.email }}</a>
+            </p> 
         {% endif %} 
+
         {% if user.about_me %}
             <p>{{ user.about_me }}</p>
         {% endif %}
+
         <p>
             注册日期：{{ moment(user.member_since).format('L') }}<br>
             最近登录：{{ moment(user.last_seen).fromNow() }}
         </p>
 
-        <p>{# user == current_user和current_user.is_authenticated的区别? #} {% if user == current_user %}
-            <a class="btn btn-default" href="{{ url_for('.edit_profile') }}">编辑资料</a>
-            {% endif %} {% if current_user.is_admin() %}
-            <a class="btn btn-danger" href="{{ url_for('.edit_profile_admin', id=user.id) }}">编辑资料 [ADMIN]</a>
+        <p>{# user == current_user和current_user.is_authenticated的区别? #} 
+            {% if user == current_user %}
+                <a class="btn btn-default" href="{{ url_for('.edit_profile') }}">
+                    编辑资料
+                </a>
+            {% endif %} 
+
+            {% if current_user.is_admin() %}
+                <a class="btn btn-danger" href="{{ url_for('.edit_profile_admin', id=user.id) }}">
+                    编辑资料 [ADMIN]
+                </a>
             {% endif %}
         </p>
     </div>
