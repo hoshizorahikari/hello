@@ -37,8 +37,15 @@ def user(username):
     # 根据用户名查询用户对象,没有返回404
     user = User.query.filter_by(username=username).first_or_404()
     # 查询该用户的文章列表, 按时间戳降序
-    blogs = user.blogs.order_by(Blog.timestamp.desc()).all()
-    return render_template('user.html', user=user, blogs=blogs)
+    page = request.args.get('page', 1, type=int)
+    # page为第几页;per_page为每页几个记录,默认20;
+    # error_out默认为True,表示页数超过范围404错误,False则返回空列表
+    pagination = user.blogs.order_by(Blog.timestamp.desc()).paginate(
+        page, per_page=current_app.config['BLOGS_PER_PAGE']//2+1, error_out=False)
+    blogs = pagination.items
+    # blogs = user.blogs.order_by(Blog.timestamp.desc()).all()
+    return render_template('user.html', user=user, blogs=blogs,
+                           pagination=pagination)
 
 
 @main.route('/edit_profile', methods=['GET', 'POST'])
@@ -93,3 +100,26 @@ def edit_profile_admin(id):
     form.image.data = user.image
     # 管理员资料编辑和普通用户使用同一个模板
     return render_template('edit_profile.html', form=form, user=user)
+
+@main.route('/blog/<int:id>')
+def blog(id):
+    b = Blog.query.get_or_404(id)
+    return render_template('blog.html', blogs=[b])
+
+@main.route('/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit(id):
+    b = Blog.query.get_or_404(id)
+    # 当前登录用户是文章的作者或管理员可以编辑
+    if current_user != b.author and \
+            not current_user.can(Permission.ADMIN):
+        abort(403)
+    form = BlogForm()
+    if form.validate_on_submit():
+        b.body = form.body.data
+        db.session.add(b)
+        # db.session.commit()
+        flash('修改成功！')
+        return redirect(url_for('.blog', id=b.id))
+    form.body.data = b.body
+    return render_template('edit_blog.html', form=form)

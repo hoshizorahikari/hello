@@ -1,6 +1,6 @@
-* {
+/* * {
     font-family: "Microsoft Yahei";
-}
+} */
 
 /* 个人资料头像缩略图 */
 
@@ -63,4 +63,42 @@ div.blog-content {
     position: absolute;
     max-width: 40px;
     max-height: 40px;
+}
+
+div.pagination_box {
+    width: 100%;
+    text-align: center;
+    padding: 0px;
+    margin: 0px;
+}
+
+/* markdown预览框 */
+div.flask-pagedown-preview {
+    margin: 10px 0px 10px 0px;
+    border: 1px solid #e0e0e0;
+    padding: 4px;
+}
+/* markdown预览和博客文章的h1,h2,h3样式 */
+div.flask-pagedown-preview h1,.blog-body h1 {
+    font-size: 200%;
+}
+div.flask-pagedown-preview h2,.blog-body h2 {
+    font-size: 160%;
+}
+div.flask-pagedown-preview h3,.blog-body h3 {
+    font-size: 125%;
+}
+/*
+.blog-body h1 {
+    font-size: 140%;
+}
+.blog-body h2 {
+    font-size: 130%;
+}
+.blog-body h3 {
+    font-size: 120%;
+}
+*/
+div.blog-footer {
+    text-align: right;
 }

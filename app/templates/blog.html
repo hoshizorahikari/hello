@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{# 只有一篇文章, 为什么要导入分页? #}
+{% import "_macros.html" as macros %}
+
+{% block title %}hikari app - Blog{% endblock %}
+
+{% block page_content %}
+    {% include '_blogs.html' %}
+{% endblock %}

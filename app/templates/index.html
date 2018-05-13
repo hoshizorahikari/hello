@@ -1,5 +1,7 @@
 {% extends "base.html" %} {# 继承于base.html模板 #} 
 {% import "bootstrap/wtf.html" as wtf %} 
+{% import "_macros.html" as macros %}
+
 {% block title %}hikari app{% endblock %}
 
 {% block page_content %}
@@ -20,7 +22,19 @@
         {{ wtf.quick_form(form)}} 
     {% endif %}
 </div>
-
+{# 显示博客文章的ul #}
 {% include '_blogs.html'%}
+{# 分页 #}
+{%  if pagination %}
+    <div class="pagination_box">
+        {{ macros.pagination_widget(pagination,'.index') }}
+    </div>
+{% endif %}
 
+{% endblock %}
+
+{# 底部使用宏,从CDN加载js文件 #}
+{% block scripts %}
+    {{ super() }}
+    {{ pagedown.include_pagedown() }}
 {% endblock %}

@@ -1,4 +1,5 @@
 {% extends "base.html" %} 
+{% import "_macros.html" as macros %}
 
 {% block title %}
     hikari app - {{ user.username }}
@@ -56,5 +57,11 @@
 </div>
 <h3>{{ user.username }}的文章</h3>
 {% include '_blogs.html'%}
+{%  if pagination %}
+    <div class="pagination_box">
+        {{ macros.pagination_widget(pagination, '.user', username=user.username) }}
+    </div>
+{% endif %}
+
 {% endblock %}
 

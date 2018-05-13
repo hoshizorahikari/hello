@@ -5,11 +5,14 @@ from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 from config import config
 from flask_login import LoginManager
+from flask_pagedown import PageDown
+
 
 bootstrap = Bootstrap()
 mail = Mail()
 moment = Moment()
 db = SQLAlchemy()
+pagedown = PageDown()
 
 login_manager = LoginManager()
 # 用户会话保护等级, 可以设为None, 'basic', 'strong', 防止用户会话遭篡改
@@ -30,6 +33,8 @@ def create_app(config_name):  # 工厂函数, 参数为配置名
     db.init_app(app)
 
     login_manager.init_app(app)
+
+    pagedown.init_app(app)
 
     # 附加路由和自定义的错误页面
     from .main import main as main_blueprint

@@ -3,6 +3,7 @@ from wtforms import StringField, SubmitField, TextAreaField, BooleanField, Selec
 from wtforms.validators import DataRequired, Length, Email, Regexp
 from ..models import Role, User
 from wtforms import ValidationError
+from flask_pagedown.fields import PageDownField
 
 
 class NameForm(FlaskForm):  # 一个文本字段和一个提交按钮
@@ -53,5 +54,5 @@ class EditProfileAdminForm(FlaskForm):  # 管理员使用的资料编辑表单�
 
 
 class BlogForm(FlaskForm):  # 撰写博客表单类
-    body = TextAreaField('写点什么吧...', validators=[DataRequired()])
+    body = PageDownField('写点什么吧...', validators=[DataRequired()])
     submit = SubmitField('提交')

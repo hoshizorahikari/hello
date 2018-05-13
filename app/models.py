@@ -8,6 +8,8 @@ from . import db, login_manager
 from datetime import datetime
 import hashlib
 # from flask import request
+from markdown import markdown
+import bleach
 
 
 class Permission:  # 用户权限常量
@@ -211,7 +213,6 @@ class User(UserMixin, db.Model):
         return '{}/{}?s={}&d={}&r={}'.format(url, md5, size, default, rating)
 
 
-
 class AnonymousUser(AnonymousUserMixin):
     def can(self, p):
         return False
@@ -233,8 +234,26 @@ class Blog(db.Model):
     __tablename__ = 'blogs'
     id = db.Column(db.Integer, primary_key=True)
     body = db.Column(db.Text)  # 博客正文
+    body_html = db.Column(db.Text)  # 博客正文HTML代码
     timestamp = db.Column(db.DateTime, index=True,
                           default=datetime.utcnow)  # 创建时间
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
+    @staticmethod
+    def on_changed_body(target, value, oldvalue, initiator):
+        # body字段渲染成HTML保存到body_html
+        allowed_tags = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
+                        'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
+                        'h1', 'h2', 'h3', 'p']
+        exts = ['markdown.extensions.extra', 'markdown.extensions.codehilite',
+                'markdown.extensions.tables', 'markdown.extensions.toc']
+        target.body_html = markdown(value, extensions=exts)
 
+        # target.body_html = bleach.linkify(bleach.clean(
+        #     markdown(value, output_format='html'),
+        #     tags=allowed_tags, strip=True))
+
+
+# on_changed_body注册在body字段, SQLAlchemy 'set'事件的监听程序
+# 只要body字段设了新值,函数自动被调用
+db.event.listen(Blog.body, 'set', Blog.on_changed_body)

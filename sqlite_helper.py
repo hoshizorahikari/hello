@@ -38,10 +38,11 @@ class SQLiteHelper():
 
 if __name__ == '__main__':
     s = SQLiteHelper('dev_data.sqlite')
-    ret= s.query("select * from users")
+    ret= s.query("select id,body_html from blogs where body_html is not null")
     if ret:
         for tup in ret:
             print(tup)
+    s.execute("update blogs set body_html='' where id=406")
 
     
         
