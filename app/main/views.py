@@ -4,7 +4,7 @@ from . import main
 from flask_login import login_required, current_user
 from .forms import EditProfileForm, EditProfileAdminForm, BlogForm
 from .. import db
-from ..decorators import admin_required,permission_required
+from ..decorators import admin_required, permission_required
 
 
 @main.route('/', methods=['GET', 'POST'])
@@ -101,10 +101,12 @@ def edit_profile_admin(id):
     # 管理员资料编辑和普通用户使用同一个模板
     return render_template('edit_profile.html', form=form, user=user)
 
+
 @main.route('/blog/<int:id>')
 def blog(id):
     b = Blog.query.get_or_404(id)
     return render_template('blog.html', blogs=[b])
+
 
 @main.route('/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -168,11 +170,14 @@ def followers(username):
         return redirect(url_for('.index'))
     page = request.args.get('page', 1, type=int)
     pagination = user.followers.paginate(
+        # 在配制文件设置一页显示多少关注者, 此处为50
         page, per_page=current_app.config['FOLLOWERS_PER_PAGE'],
         error_out=False)
+    # 关注者、关注时间字典组成的列表
     follows = [{'user': item.follower, 'timestamp': item.timestamp}
                for item in pagination.items]
-    return render_template('followers.html', user=user, title="Followers of",
+    title = '关注{}的人'.format(username)
+    return render_template('followers.html', user=user, title=title,
                            endpoint='.followers', pagination=pagination,
                            follows=follows)
 
@@ -190,6 +195,7 @@ def followed_by(username):
         error_out=False)
     follows = [{'user': item.followed, 'timestamp': item.timestamp}
                for item in pagination.items]
-    return render_template('followers.html', user=user, title="Followed by",
+    title = '{}关注的人'.format(username)
+    return render_template('followers.html', user=user, title=title,
                            endpoint='.followed_by', pagination=pagination,
                            follows=follows)
