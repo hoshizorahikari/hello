@@ -79,6 +79,14 @@ class Role(db.Model):
         # 权限重置为0
         self.permissions = 0
 
+class Follow(db.Model):  # 关注功能的关联表模型
+    __tablename__ = 'follows'
+    follower_id = db.Column(db.Integer, db.ForeignKey('users.id'),
+                            primary_key=True)
+    followed_id = db.Column(db.Integer, db.ForeignKey('users.id'),
+                            primary_key=True)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
@@ -101,6 +109,22 @@ class User(UserMixin, db.Model):
 
     image = db.Column(db.String(128))  # 头像链接
     blogs = db.relationship('Blog', backref='author', lazy='dynamic')
+    # 两个一对多关系实现多对多关系
+    # 该用户关注的大神
+    followed = db.relationship('Follow',
+                               foreign_keys=[Follow.follower_id],  # 消除外键歧义
+                               # 回引Follow模型
+                               # 该用户甘愿当此人的小弟
+                               backref=db.backref('follower', lazy='joined'),
+                               lazy='dynamic',
+                               cascade='all, delete-orphan')
+    # 关注该用户的萌新
+    followers = db.relationship('Follow',
+                                foreign_keys=[Follow.followed_id],
+                                # 将该用户视为大神的用户
+                                backref=db.backref('followed', lazy='joined'),
+                                lazy='dynamic',
+                                cascade='all, delete-orphan')
 
     # password属性只可写不可读, 因为获取散列值没有意义, 无法还原密码
 
@@ -212,6 +236,33 @@ class User(UserMixin, db.Model):
         md5 = hashlib.md5(self.email.encode('utf-8')).hexdigest()
         return '{}/{}?s={}&d={}&r={}'.format(url, md5, size, default, rating)
 
+    def follow(self, user):
+        # 关注某用户(如果没有关注)
+        if not self.is_following(user):
+            f = Follow(followed=user)
+            self.followed.append(f)
+
+    def unfollow(self, user):
+        # 取消关注(如果已经关注)
+        f = self.followed.filter_by(followed_id=user.id).first()
+        if f:
+            # 删除Follow对象,销毁联系
+            self.followed.remove(f)
+
+    def is_following(self, user):
+        # user是不是该用户关注的大神
+        if user.id is None:
+            return False
+        return self.followed.filter_by(
+            followed_id=user.id).first() is not None
+
+    def is_followed_by(self, user):
+        # user是不是关注该用户的萌新
+        if user.id is None:
+            return False
+        return self.followers.filter_by(
+            follower_id=user.id).first() is not None
+
 
 class AnonymousUser(AnonymousUserMixin):
     def can(self, p):
@@ -257,3 +308,6 @@ class Blog(db.Model):
 # on_changed_body注册在body字段, SQLAlchemy 'set'事件的监听程序
 # 只要body字段设了新值,函数自动被调用
 db.event.listen(Blog.body, 'set', Blog.on_changed_body)
+
+
+

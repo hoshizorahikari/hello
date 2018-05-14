@@ -4,7 +4,7 @@ from . import main
 from flask_login import login_required, current_user
 from .forms import EditProfileForm, EditProfileAdminForm, BlogForm
 from .. import db
-from ..decorators import admin_required
+from ..decorators import admin_required,permission_required
 
 
 @main.route('/', methods=['GET', 'POST'])
@@ -123,3 +123,73 @@ def edit(id):
         return redirect(url_for('.blog', id=b.id))
     form.body.data = b.body
     return render_template('edit_blog.html', form=form)
+
+
+@main.route('/follow/<username>')
+@login_required
+@permission_required(Permission.FOLLOW)
+def follow(username):
+    # 关注该资料页用户
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flash('无效用户！')
+        return redirect(url_for('.index'))
+    if current_user.is_following(user):
+        flash('你已经关注了此用户！')
+        return redirect(url_for('.user', username=username))
+    current_user.follow(user)
+    flash('你成功关注了{}。'.format(username))
+    return redirect(url_for('.user', username=username))
+
+
+@main.route('/unfollow/<username>')
+@login_required
+@permission_required(Permission.FOLLOW)
+def unfollow(username):
+    # 取消关注
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flash('无效用户！')
+        return redirect(url_for('.index'))
+    if not current_user.is_following(user):
+        flash('你没有关注此用户，无法取消关注！')
+        return redirect(url_for('.user', username=username))
+    current_user.unfollow(user)
+    flash('你取消关注了{}！'.format(username))
+    return redirect(url_for('.user', username=username))
+
+
+@main.route('/followers/<username>')
+def followers(username):
+    # 关注此用户的小弟们
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flash('无效用户！')
+        return redirect(url_for('.index'))
+    page = request.args.get('page', 1, type=int)
+    pagination = user.followers.paginate(
+        page, per_page=current_app.config['FOLLOWERS_PER_PAGE'],
+        error_out=False)
+    follows = [{'user': item.follower, 'timestamp': item.timestamp}
+               for item in pagination.items]
+    return render_template('followers.html', user=user, title="Followers of",
+                           endpoint='.followers', pagination=pagination,
+                           follows=follows)
+
+
+@main.route('/followed_by/<username>')
+def followed_by(username):
+    # 此用户关注大神们
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flash('无效用户！')
+        return redirect(url_for('.index'))
+    page = request.args.get('page', 1, type=int)
+    pagination = user.followed.paginate(
+        page, per_page=current_app.config['FOLLOWERS_PER_PAGE'],
+        error_out=False)
+    follows = [{'user': item.followed, 'timestamp': item.timestamp}
+               for item in pagination.items]
+    return render_template('followers.html', user=user, title="Followed by",
+                           endpoint='.followed_by', pagination=pagination,
+                           follows=follows)
