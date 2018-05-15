@@ -22,8 +22,23 @@
         {{ wtf.quick_form(form)}} 
     {% endif %}
 </div>
-{# 显示博客文章的ul #}
-{% include '_blogs.html'%}
+
+
+{# 选项卡,显示全部文章or关注的大神的文章#}
+<div class="blog-tabs">
+    <ul class="nav nav-tabs">
+        <li{% if not show_followed %} class="active"{% endif %}><a href="{{ url_for('.show_all') }}">全部</a></li>
+        {% if current_user.is_authenticated %}
+        <li{% if show_followed %} class="active"{% endif %}><a href="{{ url_for('.show_followed') }}">我关注的人</a></li>
+        {% endif %}
+    </ul>
+    {# 显示博客文章的ul #}
+    {% include '_blogs.html' %}
+</div>
+
+
+
+
 {# 分页 #}
 {%  if pagination %}
     <div class="pagination_box">

@@ -28,6 +28,7 @@ class Config():  # 父类通用配置
     FLASKY_ADMIN = os.environ.get('FLASKY_ADMIN') or my_mail
     BLOGS_PER_PAGE = 20
     FOLLOWERS_PER_PAGE=50
+    COMMENTS_PER_PAGE=30
 
     @staticmethod
     def init_app(app):  # 对当前环境配置初始化

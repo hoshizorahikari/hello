@@ -79,6 +79,7 @@ class Role(db.Model):
         # 权限重置为0
         self.permissions = 0
 
+
 class Follow(db.Model):  # 关注功能的关联表模型
     __tablename__ = 'follows'
     follower_id = db.Column(db.Integer, db.ForeignKey('users.id'),
@@ -125,6 +126,8 @@ class User(UserMixin, db.Model):
                                 backref=db.backref('followed', lazy='joined'),
                                 lazy='dynamic',
                                 cascade='all, delete-orphan')
+
+    comments = db.relationship('Comment', backref='author', lazy='dynamic')
 
     # password属性只可写不可读, 因为获取散列值没有意义, 无法还原密码
 
@@ -238,7 +241,7 @@ class User(UserMixin, db.Model):
 
     def follow(self, user):
         # 关注某用户(如果没有关注)
-        if not self.is_following(user):
+        if not self.is_following(user) and self != user:
             f = Follow(followed=user)
             self.followed.append(f)
 
@@ -262,6 +265,20 @@ class User(UserMixin, db.Model):
             return False
         return self.followers.filter_by(
             follower_id=user.id).first() is not None
+
+    @property
+    def followed_blogs(self):
+        # 关注的大神的所有文章
+        return Blog.query.join(Follow, Follow.followed_id == Blog.author_id)\
+            .filter(Follow.follower_id == self.id)
+
+    @staticmethod
+    def add_self_follows():
+        for user in User.query.all():
+            if not user.is_following(user):
+                user.follow(user)
+                db.session.add(user)
+                db.session.commit()
 
 
 class AnonymousUser(AnonymousUserMixin):
@@ -289,13 +306,14 @@ class Blog(db.Model):
     timestamp = db.Column(db.DateTime, index=True,
                           default=datetime.utcnow)  # 创建时间
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    comments = db.relationship('Comment', backref='blog', lazy='dynamic')
 
     @staticmethod
     def on_changed_body(target, value, oldvalue, initiator):
         # body字段渲染成HTML保存到body_html
-        allowed_tags = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
-                        'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
-                        'h1', 'h2', 'h3', 'p']
+        # allowed_tags = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
+        #                 'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
+        #                 'h1', 'h2', 'h3', 'p']
         exts = ['markdown.extensions.extra', 'markdown.extensions.codehilite',
                 'markdown.extensions.tables', 'markdown.extensions.toc']
         target.body_html = markdown(value, extensions=exts)
@@ -310,4 +328,35 @@ class Blog(db.Model):
 db.event.listen(Blog.body, 'set', Blog.on_changed_body)
 
 
+class Comment(db.Model):
+    __tablename__ = 'comments'
+    id = db.Column(db.Integer, primary_key=True)
+    body = db.Column(db.Text)  # 评论正文
+    body_html = db.Column(db.Text)  # 评论正文HTML代码
+    timestamp = db.Column(db.DateTime, index=True,
+                          default=datetime.utcnow)  # 评论时间
+    disabled = db.Column(db.Boolean)  # 查禁不当评论
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    blog_id = db.Column(db.Integer, db.ForeignKey('blogs.id'))
 
+    @staticmethod
+    def on_changed_body(target, value, oldvalue, initiator):
+        # body字段渲染成HTML保存到body_html
+
+        allowed_tags = ['a', 'abbr', 'acronym', 'b', 'code', 'em', 'i',
+                        'strong']
+        target.body_html = bleach.linkify(bleach.clean(
+            markdown(value, output_format='html'),
+            tags=allowed_tags, strip=True))
+        # exts = ['markdown.extensions.extra', 'markdown.extensions.codehilite',
+        #         'markdown.extensions.tables', 'markdown.extensions.toc']
+        # target.body_html = markdown(value, extensions=exts)
+
+        # target.body_html = bleach.linkify(bleach.clean(
+        #     markdown(value, output_format='html'),
+        #     tags=allowed_tags, strip=True))
+
+
+# on_changed_body注册在body字段, SQLAlchemy 'set'事件的监听程序
+# 只要body字段设了新值,函数自动被调用
+db.event.listen(Comment.body, 'set', Comment.on_changed_body)

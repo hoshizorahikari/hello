@@ -111,3 +111,11 @@ div.blog-footer {
     max-width: 30px;
     max-height: 30px;
 }
+
+div.blog-tabs {
+    margin-top: 16px;
+}
+div.post-tabs ul.blog_box {
+    margin: 0px;
+    border-top: none;
+}

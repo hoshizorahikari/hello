@@ -51,9 +51,11 @@
                 {% endif %}
             {% endif %}
             <a href="{{ url_for('.followers', username=user.username) }}">
-                关注ta的人: <span class="badge">{{ user.followers.count() }}</span></a>
+                关注{% if user == current_user %}我{% else %}ta{% endif %}的人: 
+                <span class="badge">{{ user.followers.count() }}</span></a>
             <a href="{{ url_for('.followed_by', username=user.username) }}">
-                ta关注的人: <span class="badge">{{ user.followed.count() }}</span></a>
+            {% if user == current_user %}我{% else %}ta{% endif %}关注的人: 
+            <span class="badge">{{ user.followed.count() }}</span></a>
             {% if current_user.is_authenticated and user != current_user and user.is_following(current_user) %}
             | <span class="label label-default">ta关注了你</span>
             {% endif %}

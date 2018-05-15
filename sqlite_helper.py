@@ -43,9 +43,7 @@ if __name__ == '__main__':
         for tup in ret:
             print(tup)
 
-    
-    sql="insert into follows values(100,1);"
-    s.execute(sql)
+
 
 
 

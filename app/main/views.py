@@ -1,8 +1,8 @@
 from flask import render_template, abort, flash, url_for, redirect, request, current_app
-from ..models import User, Role, Permission, Blog
+from ..models import User, Role, Permission, Blog, Comment
 from . import main
 from flask_login import login_required, current_user
-from .forms import EditProfileForm, EditProfileAdminForm, BlogForm
+from .forms import EditProfileForm, EditProfileAdminForm, BlogForm, CommentForm
 from .. import db
 from ..decorators import admin_required, permission_required
 
@@ -20,16 +20,23 @@ def index():
     # 分页
     # 查询字符串(request.args)获取页数,默认第1页;type=int保证参数无法转为int时返回默认值
     page = request.args.get('page', 1, type=int)
+
+    # show_followed存储在cookie中, 是否只显示关注用户文章
+    show_followed = False
+    if current_user.is_authenticated:
+        show_followed = bool(request.cookies.get('show_followed', ''))
+    query = current_user.followed_blogs if show_followed else Blog.query
+
     # page为第几页;per_page为每页几个记录,默认20;
     # error_out默认为True,表示页数超过范围404错误,False则返回空列表
-    pagination = Blog.query.order_by(Blog.timestamp.desc()).paginate(
+    pagination = query.order_by(Blog.timestamp.desc()).paginate(
         page, per_page=current_app.config['BLOGS_PER_PAGE'], error_out=False)
     blogs = pagination.items
 
     # 按时间戳降序, 最近的靠前
     # blogs = Blog.query.order_by(Blog.timestamp.desc()).all()
     return render_template('index.html', form=form, blogs=blogs,
-                           pagination=pagination)
+                           show_followed=show_followed, pagination=pagination)
 
 
 @main.route('/user/<username>')
@@ -102,10 +109,10 @@ def edit_profile_admin(id):
     return render_template('edit_profile.html', form=form, user=user)
 
 
-@main.route('/blog/<int:id>')
-def blog(id):
-    b = Blog.query.get_or_404(id)
-    return render_template('blog.html', blogs=[b])
+# @main.route('/blog/<int:id>')
+# def blog(id):
+#     b = Blog.query.get_or_404(id)
+#     return render_template('blog.html', blogs=[b])
 
 
 @main.route('/edit/<int:id>', methods=['GET', 'POST'])
@@ -133,8 +140,8 @@ def edit(id):
 def follow(username):
     # 关注该资料页用户
     user = User.query.filter_by(username=username).first()
-    if user is None:
-        flash('无效用户！')
+    if user is None or current_user == user:
+        flash('无效操作！')
         return redirect(url_for('.index'))
     if current_user.is_following(user):
         flash('你已经关注了此用户！')
@@ -150,8 +157,8 @@ def follow(username):
 def unfollow(username):
     # 取消关注
     user = User.query.filter_by(username=username).first()
-    if user is None:
-        flash('无效用户！')
+    if user is None or current_user == user:
+        flash('无效操作！')
         return redirect(url_for('.index'))
     if not current_user.is_following(user):
         flash('你没有关注此用户，无法取消关注！')
@@ -163,7 +170,7 @@ def unfollow(username):
 
 @main.route('/followers/<username>')
 def followers(username):
-    # 关注此用户的小弟们
+    # 显示关注此用户的小弟们
     user = User.query.filter_by(username=username).first()
     if user is None:
         flash('无效用户！')
@@ -184,7 +191,7 @@ def followers(username):
 
 @main.route('/followed_by/<username>')
 def followed_by(username):
-    # 此用户关注大神们
+    # 显示此用户关注的大神们
     user = User.query.filter_by(username=username).first()
     if user is None:
         flash('无效用户！')
@@ -199,3 +206,45 @@ def followed_by(username):
     return render_template('followers.html', user=user, title=title,
                            endpoint='.followed_by', pagination=pagination,
                            follows=follows)
+
+
+from flask import make_response
+
+
+@main.route('/all')
+@login_required
+def show_all():
+    resp = make_response(redirect(url_for('.index')))
+    resp.set_cookie('show_followed', '', max_age=30*24*60*60)
+    return resp
+
+
+@main.route('/followed')
+@login_required
+def show_followed():
+    resp = make_response(redirect(url_for('.index')))
+    resp.set_cookie('show_followed', '1', max_age=30*24*60*60)
+    return resp
+
+
+@main.route('/blog/<int:id>', methods=['GET', 'POST'])
+def blog(id):  # 单个博客文章页面
+    b = Blog.query.get_or_404(id)
+    form = CommentForm()
+    if form.validate_on_submit():
+        c = Comment(body=form.body.data,
+                    blog=b,
+                    auther=current_user._get_current_object())
+        db.session.add(c)
+        # db.session.commit()
+        flash('评论成功！')
+        return redirect(url_for('.blog', id=b.id, page=-1))
+    page = request.args.get('page', 1, type=int)
+    n = current_app.config['COMMENTS_PER_PAGE']  # 配置文件设为30
+    if page == -1:  # 评论最后一页;因为先评论的在前,刚提交的评论在最后
+        page = (blog.comments.count()-1)//n+1
+    pagination = Blog.comments.order_by(Comment.timestamp.asc()).paginate(
+        page, per_page=n, error_out=False)
+    comments = pagination.items
+    return render_template('blog.html', blogs=[b], form=form,
+                           comments=comments, pagination=pagination)

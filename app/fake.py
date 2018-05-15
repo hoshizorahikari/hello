@@ -2,7 +2,7 @@ from random import randint
 from sqlalchemy.exc import IntegrityError
 from faker import Faker
 from . import db
-from .models import User, Blog
+from .models import User, Blog, Follow
 
 
 def gen_fake_users(count=100):
@@ -39,4 +39,25 @@ def gen_fake_blogs(count=100):
                  timestamp=fake.past_date(),
                  author=u)
         db.session.add(p)
+    db.session.commit()
+
+
+def gen_follows(count=100):
+    # 随机分配关注
+    user_count = User.query.count()
+    hikari = User.query.first()
+    for j in range(user_count):
+        u = User.query.offset(j).first()
+        if u != hikari:
+            u.follow(hikari)
+    i = 0
+    while i < count:
+        # offset()过滤器跳过指定记录数量; 通过设置随机偏移,
+        # 再调用first()相当于每次随机选一个用户
+        u1 = User.query.offset(randint(0, user_count - 1)).first()
+        u2 = User.query.offset(randint(0, user_count - 1)).first()
+        if u1 == u2 or u1.is_following(u2) or u1 == hikari:
+            continue
+        u1.follow(u2)
+        i += 1
     db.session.commit()
