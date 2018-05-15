@@ -38,6 +38,12 @@
                     <a href="{{ url_for('.blog',id=blog.id) }}">
                         <span class="label label-default">链接</span>
                     </a>
+
+                    <a href="{{ url_for('.blog', id=blog.id) }}#comments">
+                        <span class="label label-primary">{{ blog.comments.count() }} Comments</span>
+                    </a>
+
+
                 </div>
 
 

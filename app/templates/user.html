@@ -40,7 +40,7 @@
             最近登录：{{ moment(user.last_seen).fromNow() }}
         </p>
 
-        <p>ta的博客有{{ user.blogs.count() }}篇文章。</p>
+        <p>ta的博客有{{ user.blogs.count() }}篇文章 | {{ user.comments.count() }}条评论</p>
         {# 关注&取消关注 #}
         <p>
             {% if current_user.can(Permission.FOLLOW) and user != current_user %}

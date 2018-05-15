@@ -1,10 +1,10 @@
 {# 定义pagination_widget宏,相当于函数,可用在首页或用户页面,文章过多时分页显示 #}
-{% macro pagination_widget(pagination, endpoint) %}
+{% macro pagination_widget(pagination, endpoint,fragment='') %}
 <ul class="pagination"> {# 分页导航 #}
     {# 上一页链接,如果没有上一页,链接加上disabled类 #}
     <li{% if not pagination.has_prev %} class="disabled"{% endif %}>
         <a href="{% if pagination.has_prev %}
-            {{ url_for(endpoint, page=pagination.prev_num, **kwargs) }}
+            {{ url_for(endpoint, page=pagination.prev_num, **kwargs) }}{{ fragment }}
         {% else %}
             #
         {% endif %}">
@@ -17,11 +17,11 @@
         {# 当前页面加上active类,表示高亮 #}
             {% if p == pagination.page %}
             <li class="active">
-                <a href="{{ url_for(endpoint, page = p, **kwargs) }}">{{ p }}</a>
+                <a href="{{ url_for(endpoint, page = p, **kwargs) }}{{ fragment }}">{{ p }}</a>
             </li>
             {% else %}
             <li>
-                <a href="{{ url_for(endpoint, page = p, **kwargs) }}">{{ p }}</a>
+                <a href="{{ url_for(endpoint, page = p, **kwargs) }}{{ fragment }}">{{ p }}</a>
             </li>
             {% endif %}
         {% else %} {# 页面中None表示的间隔使用省略号表示 #}
@@ -31,7 +31,7 @@
     {# 下一页链接,如果没有下一页,链接加上disabled类 #}
     <li{% if not pagination.has_next %} class="disabled"{% endif %}>
         <a href="{% if pagination.has_next %}
-            {{ url_for(endpoint, page=pagination.next_num, **kwargs) }}
+            {{ url_for(endpoint, page=pagination.next_num, **kwargs) }}{{ fragment }}
         {% else %}
             #
         {% endif %}">

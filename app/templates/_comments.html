@@ -1,0 +1,28 @@
+<ul class="comment_box">
+    {% for c in comments %}
+    <li class="comment">
+        <div class="comment-thumbnail">
+            <a href="{{ url_for('.user', username=c.author.username) }}">
+                <img class="img-rounded auther-thumbnail" src="{{ c.author.image }}">
+            </a>
+        </div>
+        <div class="comment-content">
+            <div class="comment-date">
+                {{ moment(c.timestamp).fromNow() }}
+            </div>
+            <div class="comment-author">
+                <a href="{{ url_for('.user', username=c.author.username) }}">
+                    {{ c.author.username }}
+                </a>
+            </div>
+            <div class="comment-body">
+                {% if c.body_html %}
+                    {{ c.body_html | safe }}
+                {% else %}
+                    {{ c.body }}
+                {% endif %}
+            </div>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
