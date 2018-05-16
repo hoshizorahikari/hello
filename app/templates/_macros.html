@@ -1,5 +1,5 @@
 {# 定义pagination_widget宏,相当于函数,可用在首页或用户页面,文章过多时分页显示 #}
-{% macro pagination_widget(pagination, endpoint,fragment='') %}
+{% macro pagination_widget(pagination, endpoint, fragment='') %}
 <ul class="pagination"> {# 分页导航 #}
     {# 上一页链接,如果没有上一页,链接加上disabled类 #}
     <li{% if not pagination.has_prev %} class="disabled"{% endif %}>

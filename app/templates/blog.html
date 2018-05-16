@@ -9,6 +9,7 @@
     {% include '_blogs.html' %}
 
     <h4 id="comments">评论</h4>
+    {# 需要有评论权限 #}
     {% if current_user.can(Permission.COMMENT) %}
         <div class="comment-form">
             {{ wtf.quick_form(form) }}
@@ -23,3 +24,8 @@
 
 
 {% endblock %}
+{# 底部使用宏,从CDN加载js文件 #} 
+{% block scripts %} 
+    {{ super() }} 
+    {{ pagedown.include_pagedown() }} 
+{% endblock %} 

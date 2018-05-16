@@ -17,6 +17,7 @@ def index():
         db.session.add(blog)
         # db.session.commit()
         return redirect(url_for('.index'))
+        # return redirect(url_for('.blog',id=blog.id))
     # 分页
     # 查询字符串(request.args)获取页数,默认第1页;type=int保证参数无法转为int时返回默认值
     page = request.args.get('page', 1, type=int)
@@ -234,7 +235,7 @@ def blog(id):  # 单个博客文章页面
     if form.validate_on_submit():
         c = Comment(body=form.body.data,
                     blog=b,
-                    auther=current_user._get_current_object())
+                    author=current_user._get_current_object())
         db.session.add(c)
         # db.session.commit()
         flash('评论成功！')
@@ -242,9 +243,47 @@ def blog(id):  # 单个博客文章页面
     page = request.args.get('page', 1, type=int)
     n = current_app.config['COMMENTS_PER_PAGE']  # 配置文件设为30
     if page == -1:  # 评论最后一页;因为先评论的在前,刚提交的评论在最后
-        page = (blog.comments.count()-1)//n+1
-    pagination = Blog.comments.order_by(Comment.timestamp.asc()).paginate(
+        page = (b.comments.count()-1)//n+1
+    pagination = b.comments.order_by(Comment.timestamp.asc()).paginate(
         page, per_page=n, error_out=False)
     comments = pagination.items
     return render_template('blog.html', blogs=[b], form=form,
                            comments=comments, pagination=pagination)
+
+
+@main.route('/moderate')
+@login_required
+@permission_required(Permission.MODERATE)
+def moderate():
+    # 从数据库读取一页评论
+    page = request.args.get('page', 1, type=int)
+    pagination = Comment.query.order_by(Comment.timestamp.desc()).paginate(
+        page, per_page=current_app.config['COMMENTS_PER_PAGE'],
+        error_out=False)
+    comments = pagination.items
+    return render_template('moderate.html', comments=comments,
+                           pagination=pagination, page=page)
+
+
+@main.route('/moderate/enable/<int:id>')
+@login_required
+@permission_required(Permission.MODERATE)
+def moderate_enable(id):
+    c = Comment.query.get_or_404(id)
+    c.disabled = False
+    db.session.add(c)
+    # db.session.commit()
+    return redirect(url_for('.moderate',
+                            page=request.args.get('page', 1, type=int)))
+
+
+@main.route('/moderate/disable/<int:id>')
+@login_required
+@permission_required(Permission.MODERATE)
+def moderate_disable(id):
+    c = Comment.query.get_or_404(id)
+    c.disabled = True
+    db.session.add(c)
+    # db.session.commit()
+    return redirect(url_for('.moderate',
+                            page=request.args.get('page', 1, type=int)))

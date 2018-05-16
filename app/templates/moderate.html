@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+
+{% block title %}hikari app - 管理评论{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <h1>管理评论</h1>
+</div>
+{% set moderate = True %}{# 定义模板变量moderate为True#}
+{% include '_comments.html' %}{# 导入子模板渲染评论 #}
+{% if pagination %}
+<div class="pagination">
+    {{ macros.pagination_widget(pagination, '.moderate') }}
+</div>
+{% endif %}
+{% endblock %}

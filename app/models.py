@@ -345,9 +345,9 @@ class Comment(db.Model):
 
         allowed_tags = ['a', 'abbr', 'acronym', 'b', 'code', 'em', 'i',
                         'strong']
-        target.body_html = bleach.linkify(bleach.clean(
-            markdown(value, output_format='html'),
-            tags=allowed_tags, strip=True))
+        exts = ['markdown.extensions.extra', 'markdown.extensions.codehilite',
+                'markdown.extensions.tables', 'markdown.extensions.toc']
+        target.body_html = bleach.clean(markdown(value, extensions=exts), tags=allowed_tags, strip=True)
         # exts = ['markdown.extensions.extra', 'markdown.extensions.codehilite',
         #         'markdown.extensions.tables', 'markdown.extensions.toc']
         # target.body_html = markdown(value, extensions=exts)

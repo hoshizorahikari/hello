@@ -1,11 +1,13 @@
 <ul class="comment_box">
     {% for c in comments %}
     <li class="comment">
+        {# 评论者头像 #}
         <div class="comment-thumbnail">
             <a href="{{ url_for('.user', username=c.author.username) }}">
                 <img class="img-rounded auther-thumbnail" src="{{ c.author.image }}">
             </a>
         </div>
+        {# 评论者内容: 日期+名字+正文 #}
         <div class="comment-content">
             <div class="comment-date">
                 {{ moment(c.timestamp).fromNow() }}
@@ -16,12 +18,32 @@
                 </a>
             </div>
             <div class="comment-body">
-                {% if c.body_html %}
-                    {{ c.body_html | safe }}
-                {% else %}
-                    {{ c.body }}
+                {% if c.disabled %}
+                    <p><i>该评论已被和谐...</i></p>
+                {% endif %}
+                {# 如果评论正常,或协管员浏览被和谐评论,显示之 #}
+                {% if moderate or not c.disabled %}
+                    {% if c.body_html %}
+                        {{ c.body_html | safe }}
+                    {% else %}
+                        {{ c.body }}
+                    {% endif %}
                 {% endif %}
             </div>
+            {# 协管员两个按钮,管理是否显示该评论 #}
+            {% if moderate %}<br>
+                {% if c.disabled %}
+                    <a class="btn btn-default btn-xs" 
+                    href="{{ url_for('.moderate_enable', id=c.id, page=page) }}">
+                    恢复</a>
+                {% else %}
+                    <a class="btn btn-danger btn-xs" 
+                    href="{{ url_for('.moderate_disable', id=c.id, page=page) }}">
+                    和谐</a>
+                {% endif %}
+            {% endif %}
+
+
         </div>
     </li>
     {% endfor %}
