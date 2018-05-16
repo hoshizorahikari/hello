@@ -42,4 +42,9 @@ def create_app(config_name):  # 工厂函数, 参数为配置名
     from .auth import auth as auth_blueprint
     # url_prefix是可选, 蓝本所有路由添加前缀, 如/login变为/auth/login
     app.register_blueprint(auth_blueprint, url_prefix='/auth')
+
+    # api蓝本
+    from .api import api as api_blueprint
+    # api蓝本所有路由添加前缀,如/blogs变为/api/v1/blogs
+    app.register_blueprint(api_blueprint, url_prefix='/api/v1')
     return app  # 返回创建的程序示例

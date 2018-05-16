@@ -74,6 +74,7 @@ def gen_fake_comments(count=100):
         # 再调用first()相当于每次随机选一个用户
         u = User.query.offset(randint(0, user_count - 1)).first()
         b = Blog.query.offset(randint(0, blog_count - 1)).first()
+        # b = Blog.query.first()
         c = Comment(body=fake.text(),
                     timestamp=fake.past_date(),
                     author=u,
