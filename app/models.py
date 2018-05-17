@@ -1,4 +1,4 @@
-from flask import current_app
+from flask import current_app,url_for
 from flask_login import AnonymousUserMixin, UserMixin
 from itsdangerous import TimedJSONWebSignatureSerializer as Slzer
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -10,6 +10,8 @@ import hashlib
 # from flask import request
 from markdown import markdown
 import bleach
+
+from app.exceptions import ValidationError
 
 
 class Permission:  # 用户权限常量
@@ -280,6 +282,34 @@ class User(UserMixin, db.Model):
                 db.session.add(user)
                 db.session.commit()
 
+    def gen_auth_token(self, expiration):
+        # 以用户id生成签名令牌
+        s = Slzer(current_app.config['SECRET_KEY'], expires_in=expiration)
+        return s.dumps({'id': self.id}).decode('utf-8')
+
+    @staticmethod
+    def verify_auth_token(token):
+        # 静态方法因为只有解码令牌后才知道用户是谁
+        s = Slzer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token)
+        except:
+            return
+        # 返回id对应用户对象
+        return User.query.get(data['id'])
+
+    def to_json(self):
+        return {
+            'url': url_for('api.get_user', id=self.id),
+            'username': self.username,
+            'member_since': self.member_since,
+            'last_seen': self.last_seen,
+            'blogs_url': url_for('api.get_user_blogs', id=self.id),
+            'followed_blogs_url': url_for('api.get_user_followed_blogs',
+                                          id=self.id),
+            'blog_count': self.blogs.count()
+        }
+
 
 class AnonymousUser(AnonymousUserMixin):
     def can(self, p):
@@ -321,6 +351,23 @@ class Blog(db.Model):
         # target.body_html = bleach.linkify(bleach.clean(
         #     markdown(value, output_format='html'),
         #     tags=allowed_tags, strip=True))
+    def to_json(self):
+        return {
+            'url': url_for('api.get_blog', id=self.id),
+            'body': self.body,
+            'body_html': self.body_html,
+            'timestamp': self.timestamp,
+            'author_url': url_for('api.get_user', id=self.author_id),
+            'comments_url': url_for('api.get_blog_comments', id=self.id),
+            'comment_count': self.comments.count()
+        }
+
+    @staticmethod
+    def from_json(blog_json):
+        body = blog_json.get('body')
+        if body is None or body == '':
+            raise ValidationError('博客文章木有正文！')
+        return Blog(body=body)
 
 
 # on_changed_body注册在body字段, SQLAlchemy 'set'事件的监听程序
@@ -347,7 +394,8 @@ class Comment(db.Model):
                         'strong']
         exts = ['markdown.extensions.extra', 'markdown.extensions.codehilite',
                 'markdown.extensions.tables', 'markdown.extensions.toc']
-        target.body_html = bleach.clean(markdown(value, extensions=exts), tags=allowed_tags, strip=True)
+        target.body_html = bleach.clean(
+            markdown(value, extensions=exts), tags=allowed_tags, strip=True)
         # exts = ['markdown.extensions.extra', 'markdown.extensions.codehilite',
         #         'markdown.extensions.tables', 'markdown.extensions.toc']
         # target.body_html = markdown(value, extensions=exts)
@@ -355,6 +403,23 @@ class Comment(db.Model):
         # target.body_html = bleach.linkify(bleach.clean(
         #     markdown(value, output_format='html'),
         #     tags=allowed_tags, strip=True))
+
+    def to_json(self):
+        return {
+            'url': url_for('api.get_comment', id=self.id),
+            'blog_url': url_for('api.get_blog', id=self.blog_id),
+            'body': self.body,
+            'body_html': self.body_html,
+            'timestamp': self.timestamp,
+            'author_url': url_for('api.get_user', id=self.author_id),
+        }
+
+    @staticmethod
+    def from_json(comment_json):
+        body = comment_json.get('body')
+        if body is None or body == '':
+            raise ValidationError('木有评论！')
+        return Comment(body=body)
 
 
 # on_changed_body注册在body字段, SQLAlchemy 'set'事件的监听程序
