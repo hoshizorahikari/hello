@@ -10,13 +10,15 @@ def gen_fake_users(count=100):
     fake = Faker('zh_CN')  # 支持中文
     i = 0
     while i < count:
-        u = User(email=fake.email(),
+        email = fake.email()
+        u = User(email=email,
                  username=fake.user_name(),
-                 password='password',
+                 password='{}{}'.format(email.split(
+                     '@')[0], (127*i**3+53*i**2+23*i+97) % 10000),
                  confirmed=True,
                  name=fake.name(),
                  location=fake.city(),
-                 about_me=fake.text(),
+                 about_me='我是机器人',
                  member_since=fake.past_date())
         db.session.add(u)
         # 随着数据增加会有重复的风险,提交时会抛出IntegrityError异常,需要回滚会话

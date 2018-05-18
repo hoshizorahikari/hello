@@ -8,7 +8,7 @@
 .cm { color: #408080; font-style: italic } /* Comment.Multiline */
 .cp { color: #BC7A00 } /* Comment.Preproc */
 .cpf { color: #408080; font-style: italic } /* Comment.PreprocFile */
-.c1 { color: #408080; font-style: italic } /* Comment.Single */
+.c1 { color: #408080; /* font-style: italic */ } /* Comment.Single */
 .cs { color: #408080; font-style: italic } /* Comment.Special */
 .gd { color: #A00000 } /* Generic.Deleted */
 .ge { font-style: italic } /* Generic.Emph */
