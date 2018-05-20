@@ -11,12 +11,11 @@ class YOUKU():
         self.headers = {'User-Agent':
                         'Mozilla/5.0 (xyzdows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.104 Safari/537.36 Core/1.53.3211.400 QQBrowser/9.6.11523.400',
                         'Referer': 'http://www.youku.com/'}
-        self.path = 'D:/hikari星/youku/'
+        self.path = 'E:/迅雷下载/'
         self.m3u8 = m3u8
         self.video = []
         self.name = 'output'
         self.get_lst()
-        self.d = None
 
     def get_lst(self):
         html = self.get_m3u8()

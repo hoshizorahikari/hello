@@ -287,3 +287,40 @@ def moderate_disable(id):
     # db.session.commit()
     return redirect(url_for('.moderate',
                             page=request.args.get('page', 1, type=int)))
+
+
+@main.route('/shutdown')
+def server_shutdown():
+    # 非测试环境不能用,直接404
+    if not current_app.testing:
+        abort(404)
+    # 获取Werkzeug在环境中提供的关闭函数
+    shutdown = request.environ.get('werkzeug.server.shutdown')
+    if not shutdown:  # 没有获取到函数,500错误
+        abort(500)
+    shutdown()  # 成功获取关闭函数,执行此函数
+    print('ready to shutdown...')
+    return 'Shutting down...'
+
+
+from flask_sqlalchemy import get_debug_queries
+
+
+@main.after_app_request
+def after_request(response):
+
+    for q in get_debug_queries():
+        # 查询时间≥设定的阈值(此处为0.5s)的查询写入日志
+        if q.duration >= current_app.config['SLOW_DB_QUERY_TIME']:
+            """
+            statement: SQL语句
+            parameters: SQL语句参数
+            start_time: 执行查询时的时间
+            end_time: 返回查询结果时的时间
+            duration: 查询持续时间,单位为秒
+            context: 表示查询在代码中所处位置的字符串
+            """
+            current_app.logger.warning(
+                'Slow query:{}\nParameters:{}\nDuration:{}s\nContext:{}\n'.format(
+                    q.statement, q.parameters, q.duration, q.context))
+    return response

@@ -3,6 +3,8 @@ import os
 COV = None
 if os.environ.get('FLASK_COVERAGE'):
     import coverage
+    # 覆盖检测引擎, branch开启分支覆盖分析,检查每个条件语句True和False
+    # 分支是否都执行;include限定文件分析范围
     COV = coverage.coverage(branch=True, include='app/*')
     COV.start()
 
@@ -15,9 +17,9 @@ from flask_script import Manager, Shell
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 
-app_context = app.app_context()  # 激活上下文
-app_context.push()
-db.create_all()  # 创建数据库
+# app_context = app.app_context()  # 激活上下文
+# app_context.push()
+# db.create_all()  # 创建数据库
 
 manager = Manager(app)
 migrate = Migrate(app, db)
@@ -42,10 +44,11 @@ manager.add_command('db', MigrateCommand)
 
 @manager.command
 def test(coverage=False):
-    """单元测试"""
+    """单元测试,test命令的选项就是test()函数的参数"""
     if coverage and not os.environ.get('FLASK_COVERAGE'):
         import sys
         os.environ['FLASK_COVERAGE'] = '1'
+        # 设定该环境变量后重启脚本?再次运行,上面代码能获取该环境变量,可以启动覆盖检测
         os.execvp(sys.executable, [sys.executable] + sys.argv)
     import unittest
     # 寻找测试文件的目录tests
@@ -59,20 +62,33 @@ def test(coverage=False):
         COV.report()
         basedir = os.path.abspath(os.path.dirname(__file__))
         covdir = os.path.join(basedir, 'tmp/coverage')
+        # 生成使用HTML编写的精美报告
         COV.html_report(directory=covdir)
         print('HTML version: file://{}/index.html'.format(covdir))
         COV.erase()
 
 
 @manager.command
-def init():
+def profile(length=25, profile_dir=None):
+    # 在代码分析器下启动程序
+    from werkzeug.contrib.profiler import ProfilerMiddleware
+    app.wsgi_app = ProfilerMiddleware(app.wsgi_app, restrictions=[length],
+                                      profile_dir=profile_dir)
+    app.run()
+
+
+@manager.command
+def deploy():
+    # 运行部署任务
     from flask_migrate import upgrade
-    upgrade()
-    Role.insert_roles()
+
+    upgrade()  # 把数据库迁移到最新版本
+    Role.insert_roles()  # 创建用户角色
+    # 为新博客添加一些生气...
     fake.gen_fake_users(100)
-    fake.gen_fake_blogs(1000)
+    fake.gen_fake_blogs(300)
     fake.gen_follows(1000)
-    fake.gen_fake_comments(400)
+    fake.gen_fake_comments(1000)
 
 
 if __name__ == '__main__':

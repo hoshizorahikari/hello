@@ -48,11 +48,12 @@ def gen_fake_blogs(count=100):
 def gen_follows(count=100):
     # 随机分配关注
     user_count = User.query.count()
-    hikari = User.query.first()
-    for j in range(user_count):
-        u = User.query.offset(j).first()
-        if u != hikari:
-            u.follow(hikari)
+    hikari = User.query.get_or_404(username='hikari')
+    if hikari:
+        for j in range(user_count):
+            u = User.query.offset(j).first()
+            if u != hikari:
+                u.follow(hikari)
     i = 0
     while i < count:
         # offset()过滤器跳过指定记录数量; 通过设置随机偏移,

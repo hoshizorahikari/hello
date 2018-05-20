@@ -120,11 +120,13 @@ class UserModelTestCase(unittest.TestCase):
         self.assertFalse(u.can(Permission.MODERATE))
         self.assertFalse(u.can(Permission.ADMIN))
 
-    def test_timestamps(self):
-        u = User(password='cat')
-        db.session.add(u)
-        db.session.commit()
-        self.assertTrue(
-            (datetime.utcnow() - u.member_since).total_seconds() < 3)
-        self.assertTrue(
-            (datetime.utcnow() - u.last_seen).total_seconds() < 3)
+
+    def test_to_json(self):
+
+        with self.app.test_request_context('/'):
+            user_json = self.u.to_json()
+        expected_keys = ['url', 'username', 'member_since', 'last_seen',
+                         'blogs_url', 'followed_blogs_url', 'blog_count']
+        self.assertEqual(sorted(user_json.keys()), sorted(expected_keys))
+        self.assertEqual('/api/v1/users/' + str(self.u.id), user_json['url'])
+

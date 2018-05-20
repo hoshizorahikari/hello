@@ -12,8 +12,8 @@ auth = HTTPBasicAuth()
 def verify_password(email_or_token, password):
     # 验证回调函数
     if email_or_token == '':  # 匿名用户访问
-        g.current_user = AnonymousUser()
-        return True
+        #g.current_user = AnonymousUser()
+        return False#True
     # 密码为空,则提供的是令牌
     if password == '':
         g.current_user = User.verify_auth_token(email_or_token)
