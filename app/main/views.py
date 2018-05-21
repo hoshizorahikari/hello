@@ -350,6 +350,9 @@ def user_enable(id):
     for c in u.comments.all():
         c.disable=False
         db.session.add(c)
+    for b in u.blogs.all():
+        b.disabled=False
+        db.session.commit()
     # db.session.commit()
     return redirect(url_for('.manage_users',
                             page=request.args.get('page', 1, type=int)))
@@ -363,27 +366,31 @@ def user_disable(id):
     if u.can(Permission.MODERATE):
         flash('不能和谐管理员和协管员!')
     else:
+        # 将该用户文章和评论全部和谐
         u.disabled = True
         db.session.add(u)
         for c in u.comments.all():
-            c.disable=True
+            c.disabled=True
             db.session.add(c)
+        for b in u.blogs.all():
+            b.disabled=True
+            db.session.commit()
     # db.session.commit()
     return redirect(url_for('.manage_users',
                             page=request.args.get('page', 1, type=int)))
 
                     
-@main.route('/blog/enable/<int:id>')
-@login_required
-@permission_required(Permission.MODERATE)
-def blog_enable(id):
-    b = Blog.query.get_or_404(id)
-    b.disabled = False
-    db.session.add(b)
+# @main.route('/blog/enable/<int:id>')
+# @login_required
+# @permission_required(Permission.MODERATE)
+# def blog_enable(id):
+#     b = Blog.query.get_or_404(id)
+#     b.disabled = False
+#     db.session.add(b)
 
-    # db.session.commit()
-    return redirect(url_for('.blog',
-                            page=request.args.get('page', 1, type=int)))
+#     # db.session.commit()
+#     return redirect(url_for('.index',
+#                             page=request.args.get('page', 1, type=int)))
 
 
 @main.route('/blog/disable/<int:id>')
@@ -394,5 +401,5 @@ def blog_disable(id):
     b.disabled = True
     db.session.add(b)
     # db.session.commit()
-    return redirect(url_for('.blog',
+    return redirect(url_for('.index',
                             page=request.args.get('page', 1, type=int)))

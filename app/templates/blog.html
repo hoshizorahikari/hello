@@ -6,6 +6,9 @@
 {% block title %}hikari app - Blog{% endblock %}
 
 {% block page_content %}
+{% if blogs[0].disabled %}
+<h3>该文章由于很黄很暴力已被送回火星...</h3>
+{% else %}
     {% include '_blogs.html' %}
 
     <h4 id="comments">评论</h4>
@@ -22,7 +25,7 @@
         </div>
     {% endif %}
 
-
+{% endif %}
 {% endblock %}
 {# 底部使用宏,从CDN加载js文件 #} 
 {% block scripts %} 

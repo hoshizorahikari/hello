@@ -42,12 +42,15 @@ class Role(db.Model):
     @staticmethod
     def insert_roles():
         # 角色字符串为键,权限常量列表为值
+        user = [Permission.FOLLOW, Permission.COMMENT]
+        writer = user.append(Permission.WRITE)
+        mod = writer.append(Permission.MODERATE)
+        admin = mod.append(Permission.ADMIN)
         roles = {
-            'User': [Permission.FOLLOW, Permission.COMMENT],
-            'Moderator': [Permission.FOLLOW, Permission.COMMENT,
-                          Permission.WRITE, Permission.MODERATE],
-            'Admin': [Permission.FOLLOW, Permission.COMMENT,
-                      Permission.WRITE, Permission.MODERATE, Permission.ADMIN],
+            'User': uuser,
+            'Writer': writer,
+            'Moderator': mod,
+            'Admin': admin,
         }
         default_role = 'User'
         for k, v in roles.items():
@@ -130,7 +133,7 @@ class User(UserMixin, db.Model):
                                 cascade='all, delete-orphan')
 
     comments = db.relationship('Comment', backref='author', lazy='dynamic')
-    disabled = db.Column(db.Boolean)  # 封禁用户
+    disabled = db.Column(db.Boolean,default=False)  # 封禁用户
 
     # password属性只可写不可读, 因为获取散列值没有意义, 无法还原密码
 
@@ -272,7 +275,7 @@ class User(UserMixin, db.Model):
     @property
     def followed_blogs(self):
         # 关注的大神的所有文章
-        return Blog.query.join(Follow, Follow.followed_id == Blog.author_id)\
+        return Blog.query.filter_by(disabled=False).join(Follow, Follow.followed_id == Blog.author_id)\
             .filter(Follow.follower_id == self.id)
 
     @staticmethod
@@ -338,7 +341,7 @@ class Blog(db.Model):
                           default=datetime.utcnow)  # 创建时间
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     comments = db.relationship('Comment', backref='blog', lazy='dynamic')
-    disabled = db.Column(db.Boolean,default=False)  # 逻辑删除文章
+    disabled = db.Column(db.Boolean, default=False)  # 逻辑删除文章
 
     @staticmethod
     def on_changed_body(target, value, oldvalue, initiator):
@@ -384,7 +387,7 @@ class Comment(db.Model):
     body_html = db.Column(db.Text)  # 评论正文HTML代码
     timestamp = db.Column(db.DateTime, index=True,
                           default=datetime.utcnow)  # 评论时间
-    disabled = db.Column(db.Boolean,default=False)  # 查禁不当评论
+    disabled = db.Column(db.Boolean, default=False)  # 查禁不当评论
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     blog_id = db.Column(db.Integer, db.ForeignKey('blogs.id'))
 

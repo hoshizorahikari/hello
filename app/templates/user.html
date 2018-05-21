@@ -5,11 +5,11 @@
     hikari app - {{ user.username }}
 {% endblock%} 
 
+
 {% block page_content %}
 {% if user.disabled %}
- <h2>该用户已被和谐...</h2>
+<h2>该用户已返回火星...</h2>
 {% else %}
-
 <div class="page-header">
     <img class="img-rounded profile-thumbnail" src="{{ user.image }}">
     <div class="profile-header">
@@ -82,6 +82,7 @@
         </p>
     </div>
 </div>
+
 <h3>{{ user.username }}的文章</h3>
 {% include '_blogs.html'%}
 {%  if pagination %}
@@ -89,8 +90,8 @@
         {{ macros.pagination_widget(pagination, '.user', username=user.username) }}
     </div>
 {% endif %}
-
 {% endif %}
+
 
 {% endblock %}
 

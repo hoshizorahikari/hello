@@ -26,6 +26,13 @@
                 </div>
 
                 <div class="blog-footer">{# 文章的底部 #}
+                    {% if current_user.is_admin() %}
+                    <a href="{{ url_for('.blog_disable', id=blog.id, page=page) }}">
+                        <span class="label label-danger">和谐</span>
+                    </a>
+                    {% endif %}
+
+
                     {% if current_user == blog.author %}
                         <a href="{{ url_for('.edit',id=blog.id) }}">
                             <span class="label label-primary">编辑</span>
@@ -34,6 +41,7 @@
                         <a href="{{ url_for('.edit',id=blog.id) }}">
                             <span class="label label-danger">编辑 [ADMIN]</span>
                         </a>
+
                     {% endif %}
                     <a href="{{ url_for('.blog',id=blog.id) }}">
                         <span class="label label-default">链接</span>
