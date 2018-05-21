@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+
+{% block title %}hikari app - 管理文章{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <h1>管理文章</h1>
+</div>
+
+<table class="table table-hover articles">
+        <thead>
+            <tr>
+                <th>标题</th>
+                <th>作者</th>
+                <th>创建时间</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        {% for b in blogs %}
+        <tr>
+             <td>
+                 <a href="{{ url_for(.blog), id=b.id }}">{{ b.title }}</a>
+            </td>
+            <td>
+                <a href="{{ url_for('.user', username = b.author.username) }}">
+                    <img class="img-rounded user_img" src="{{ b.author.image }}">
+                    {{ b.author.username }}
+                </a>
+            </td>
+            <td>{{ moment(b.timestamp).format('L') }}</td>
+            <td>
+                {% if b.disabled %}
+                <a class="btn btn-default btn-xs" 
+                href="{{ url_for('.blog_enable', id=b.id, page=page) }}">
+                恢复</a>
+                {% else %}
+                <a class="btn btn-danger btn-xs" 
+                href="{{ url_for('.blog_disable', id=b.id, page=page) }}">
+                和谐</a>
+                {% endif %}
+
+            </td>
+        </tr>
+    
+        {% endfor %}
+    </table>
+
+
+
+
+{% if pagination %}
+<div class="pagination">
+    {{ macros.pagination_widget(pagination, '.manage_users') }}
+</div>
+{% endif %}
+{% endblock %}

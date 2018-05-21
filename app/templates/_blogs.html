@@ -1,13 +1,16 @@
 <ul class="blog_box">
     {% for blog in blogs %}
         <li class="blog">
+            
             <div class="blog-thumbnail">
                 {# 文章作者头像缩略图, 带链接 #}
                 <a href="{{ url_for('.user', username=blog.author.username) }}">
                     <img class="img-rounded auther-thumbnail" src="{{ blog.author.image }}">
                 </a>
             </div>
+            
             <div class="blog-content">
+                   
                 <div class="blog-date">
                     {{ moment(blog.timestamp).fromNow() }}
                 </div>
@@ -16,21 +19,36 @@
                         {{ blog.author.username }}
                     </a>
                 </div>
+                <h2><a href="{{ url_for('.blog',id=blog.id) }}">{{ blog.title }}</a></h2>
                 <div class="blog-body">
+                    {% if index %}
+                    {#{ blog.summary }#}
                     {% if blog.body_html %}
-                        {# 使用safe过滤器,不转义HTML标签 #}
-                        {{ blog.body_html | safe }}
+                    {# 使用safe过滤器,不转义HTML标签 #}
+                    {{ blog.body_html | safe | truncate |striptags}}
                     {% else %}
-                        {{ blog.body }}
+                    {{ blog.body |truncate}}
                     {% endif %}
+                    <a href="{{ url_for('.blog',id=blog.id) }}">
+                            继续阅读>>
+                        </a>
+                    {% else %}
+                        {% if blog.body_html %}
+                            {# 使用safe过滤器,不转义HTML标签 #}
+                            {{ blog.body_html | safe}}
+                        {% else %}
+                            {{ blog.body }}
+                        {% endif %}
+                    {% endif %}
+
                 </div>
 
                 <div class="blog-footer">{# 文章的底部 #}
-                    {% if current_user.is_admin() %}
+                    {#% if current_user.can(Permission.MODERATE) %}
                     <a href="{{ url_for('.blog_disable', id=blog.id, page=page) }}">
                         <span class="label label-danger">和谐</span>
                     </a>
-                    {% endif %}
+                    {% endif %#}
 
 
                     {% if current_user == blog.author %}
@@ -43,9 +61,7 @@
                         </a>
 
                     {% endif %}
-                    <a href="{{ url_for('.blog',id=blog.id) }}">
-                        <span class="label label-default">链接</span>
-                    </a>
+
 
                     <a href="{{ url_for('.blog', id=blog.id) }}#comments">
                         <span class="label label-primary">评论({{ blog.comments.count() }})</span>

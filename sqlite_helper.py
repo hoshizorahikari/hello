@@ -38,8 +38,8 @@ class SQLiteHelper():
 
 if __name__ == '__main__':
     s = SQLiteHelper('dev_data.sqlite')
-    s.execute("UPDATE comments set disabled=0")
-    ret= s.query("select disabled from comments")
+    s.execute("UPDATE blogs set summary='no summary'")
+    ret= s.query("select summary from blogs")
     if ret:
         for tup in ret:
             print(tup)

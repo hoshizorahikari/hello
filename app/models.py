@@ -133,7 +133,7 @@ class User(UserMixin, db.Model):
                                 cascade='all, delete-orphan')
 
     comments = db.relationship('Comment', backref='author', lazy='dynamic')
-    disabled = db.Column(db.Boolean,default=False)  # 封禁用户
+    disabled = db.Column(db.Boolean, default=False)  # 封禁用户
 
     # password属性只可写不可读, 因为获取散列值没有意义, 无法还原密码
 
@@ -342,6 +342,8 @@ class Blog(db.Model):
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     comments = db.relationship('Comment', backref='blog', lazy='dynamic')
     disabled = db.Column(db.Boolean, default=False)  # 逻辑删除文章
+    title = db.Column(db.String(64), default='no title')
+    summary = db.Column(db.String(160), default='no summary')
 
     @staticmethod
     def on_changed_body(target, value, oldvalue, initiator):

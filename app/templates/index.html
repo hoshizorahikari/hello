@@ -1,5 +1,5 @@
 {% extends "base.html" %} {# 继承于base.html模板 #} 
-{% import "bootstrap/wtf.html" as wtf %} 
+
 {% import "_macros.html" as macros %}
 
 {% block title %}hikari app{% endblock %}
@@ -14,13 +14,6 @@
             Stranger 
         {% endif %}!
     </h1>
-</div>
-
-{# 用户有写文章权利,显示此表单 #}
-<div>
-    {% if current_user.can(Permission.WRITE) %}
-        {{ wtf.quick_form(form)}} 
-    {% endif %}
 </div>
 
 
@@ -46,10 +39,4 @@
     </div>
 {% endif %}
 
-{% endblock %}
-
-{# 底部使用宏,从CDN加载js文件 #}
-{% block scripts %}
-    {{ super() }}
-    {{ pagedown.include_pagedown() }}
 {% endblock %}

@@ -40,9 +40,12 @@ def gen_fake_blogs(count=100):
         # 再调用first()相当于每次随机选一个用户
         u = User.query.offset(randint(0, user_count - 1)).first()
         c = Comment
-        b = Blog(body=fake.text(),
+        b = Blog(body=fake.text(100),
                  timestamp=fake.past_date(),
-                 author=u)
+                 author=u,
+                 summary=fake.text(50),
+                 title=fake.text(20))
+
         db.session.add(b)
     db.session.commit()
 
