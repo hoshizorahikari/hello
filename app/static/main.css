@@ -104,10 +104,10 @@ div.blog-footer {
 }
 
 /* 关注者 */
-.table.followers tr {
+table.followers tr, table.users tr{
     border-bottom: 1px solid #e0e0e0;
 }
-.follow_img{
+.user_img, .follow_img{
     max-width: 30px;
     max-height: 30px;
 }
@@ -152,4 +152,35 @@ div.comment-content {
 }
 div.comment-form {
     margin: 16px 0px 16px 32px;
+}
+
+div.base-footer{
+    margin-top: 20px;
+    text-align: center;
+}
+
+#to-top {
+    position: fixed;
+    bottom: 4em;
+    right: 5%;
+    height: 36px;
+    width: 36px;
+    border-radius: 50%; /*圆形*/
+    border: 2px solid #fff;
+    background-color: #34495e;
+    top: auto;
+    display:none;
+    cursor: pointer;
+    color: #fff;
+    opacity: .4;
+    z-index:9999; /*置顶?*/
+}
+#to-top:hover{
+    opacity: .9; /*鼠标悬浮颜色变深*/
+}
+#to-top i {
+    font-size: 18px;
+    line-height: 30px;
+    text-align: center;
+    display: block;
 }

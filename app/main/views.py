@@ -26,7 +26,7 @@ def index():
     show_followed = False
     if current_user.is_authenticated:
         show_followed = bool(request.cookies.get('show_followed', ''))
-    query = current_user.followed_blogs if show_followed else Blog.query
+    query = current_user.followed_blogs if show_followed else Blog.query.filter_by(disabled=False)
 
     # page为第几页;per_page为每页几个记录,默认20;
     # error_out默认为True,表示页数超过范围404错误,False则返回空列表
@@ -324,3 +324,75 @@ def after_request(response):
                 'Slow query:{}\nParameters:{}\nDuration:{}s\nContext:{}\n'.format(
                     q.statement, q.parameters, q.duration, q.context))
     return response
+
+
+@main.route('/users')
+@login_required
+@permission_required(Permission.MODERATE)
+def manage_users():
+    # 从数据库读取一页评论
+    page = request.args.get('page', 1, type=int)
+    pagination = User.query.order_by(User.member_since.desc()).paginate(
+        page, per_page=current_app.config['USERS_PER_PAGE'],
+        error_out=False)
+    users = pagination.items
+    return render_template('manage_users.html',users=users,
+                           pagination=pagination, page=page)
+
+
+@main.route('/user/enable/<int:id>')
+@login_required
+@permission_required(Permission.MODERATE)
+def user_enable(id):
+    u = User.query.get_or_404(id)
+    u.disabled = False
+    db.session.add(u)
+    for c in u.comments.all():
+        c.disable=False
+        db.session.add(c)
+    # db.session.commit()
+    return redirect(url_for('.manage_users',
+                            page=request.args.get('page', 1, type=int)))
+
+
+@main.route('/user/disable/<int:id>')
+@login_required
+@permission_required(Permission.MODERATE)
+def user_disable(id):
+    u = User.query.get_or_404(id)
+    if u.can(Permission.MODERATE):
+        flash('不能和谐管理员和协管员!')
+    else:
+        u.disabled = True
+        db.session.add(u)
+        for c in u.comments.all():
+            c.disable=True
+            db.session.add(c)
+    # db.session.commit()
+    return redirect(url_for('.manage_users',
+                            page=request.args.get('page', 1, type=int)))
+
+                    
+@main.route('/blog/enable/<int:id>')
+@login_required
+@permission_required(Permission.MODERATE)
+def blog_enable(id):
+    b = Blog.query.get_or_404(id)
+    b.disabled = False
+    db.session.add(b)
+
+    # db.session.commit()
+    return redirect(url_for('.blog',
+                            page=request.args.get('page', 1, type=int)))
+
+
+@main.route('/blog/disable/<int:id>')
+@login_required
+@permission_required(Permission.MODERATE)
+def blog_disable(id):
+    b = Blog.query.get_or_404(id)
+    b.disabled = True
+    db.session.add(b)
+    # db.session.commit()
+    return redirect(url_for('.blog',
+                            page=request.args.get('page', 1, type=int)))

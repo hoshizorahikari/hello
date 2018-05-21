@@ -83,12 +83,40 @@ def deploy():
     from flask_migrate import upgrade
 
     upgrade()  # 把数据库迁移到最新版本
+    init()
     Role.insert_roles()  # 创建用户角色
     # 为新博客添加一些生气...
     fake.gen_fake_users(100)
     fake.gen_fake_blogs(300)
     fake.gen_follows(1000)
     fake.gen_fake_comments(1000)
+
+
+def init():
+    admin_role = Role.query.filter_by(name='Admin').first()
+    mod_role = Role.query.filter_by(name='Moderator').first()
+    u1 = User(email='208343741@qq.com',
+              username='hikari星',
+              password='aaa111',
+              confirmed=True,
+              name='hikari星',
+              location='南京',
+              about_me='python爱好者',
+              role=mod_role,
+              iamge='/static/1411.png'
+              )
+    u2 = User(email='2091248018@qq.com',
+              username='hikari',
+              password='aaa111',
+              confirmed=True,
+              name='hikari',
+              location='南京',
+              about_me='管理员大人',
+              role=admin_role,
+              image='/static/maki.png'
+              )
+
+    db.session.add_all([u1, u2])
 
 
 if __name__ == '__main__':

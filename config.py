@@ -10,7 +10,10 @@ with open('mail.hikari') as f:
 
 
 def get_db_url(a):
-    return os.environ.get('{}DATABASE_URL'.format(a.upper())) or 'sqlite:///{}'.format(os.path.join(basedir, '{}data.sqlite'.format(a)))
+    # return os.environ.get('{}DATABASE_URL'.format(a.upper())) or \
+    #     'sqlite:///{}'.format(os.path.join(basedir, '{}data.sqlite'.format(a)))
+    return os.environ.get('{}DATABASE_URL'.format(a.upper())) or \
+        'mysql+pymysql://root:mysql@localhost:3306/{}myblog'.format(a)
 
 
 class Config():  # 父类通用配置
@@ -31,6 +34,8 @@ class Config():  # 父类通用配置
     COMMENTS_PER_PAGE = 30
     SQLALCHEMY_RECORD_QUERIES = True  # Flask-SQLAlchemy启用记录查询统计数字功能
     SLOW_DB_QUERY_TIME = 0.5  # 缓慢查询的阈值
+
+    USERS_PER_PAGE = 50
 
     @staticmethod
     def init_app(app):  # 对当前环境配置初始化

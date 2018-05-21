@@ -5,9 +5,10 @@
     {{ super() }} 
     <link rel="shortcut icon" href="{{ url_for('static', filename = 'shortcuticon.png') }}" type="image/png"> 
     <link rel="icon" href="{{ url_for('static', filename = 'shortcuticon.png') }}" type="image/png"> 
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='main.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='default.css') }}">
+    <link rel="stylesheet" type="text/css" href="https://netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='github-markdown.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='default.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='main.css') }}">
     
 {% endblock %} 
 
@@ -17,16 +18,8 @@
 
 {% block styles %}
 {{ super() }}
-<style>
-    h1 {
-        font: 36px/36px "Microsoft YaHei";
-    }
-
-    .user {
-        color: #ff00ff;
-    }
-</style>
 {% endblock %} 
+
 {% block navbar%}{# 导航条,直接复制吧,太难记了 #}
 <div class="navbar navbar-inverse navbar-static-top" role="navigation">
     <div class="container">
@@ -46,18 +39,22 @@
             {# nav navbar-nav:导航条菜单 #}
             <ul class="nav navbar-nav">
                 <li>
-                    <a href="{{ url_for('main.index') }}">Home</a>
+                    <a href="{{ url_for('main.index') }}"><i class="fa fa-home mr-1"></i>&nbsp;首页</a>
                 </li>
-                {% if current_user.is_authenticated %}
+                {#% if current_user.is_authenticated %}
                 <li>   
-                    <a href="{{ url_for('main.user',username=current_user.username) }}">Profile</a>
+                    <a href="{{ url_for('main.user',username=current_user.username) }}">个人资料</a>
                 </li>
-                {% endif %}
+                {% endif %#}
 
                 {% if current_user.can(Permission.MODERATE) %}
                 <li>   
                     <a href="{{ url_for('main.moderate') }}">管理评论</a>
                 </li>
+                <li>   
+                    <a href="{{ url_for('main.manage_users') }}">管理用户</a>
+                </li>
+
                 {% endif %}
             </ul>
 
@@ -86,14 +83,12 @@
         </div>
     </div>
 </div>
+
+
+
 {% endblock %} 
 
 
-{#% block content %}
-<div class="container">
-    {% block page_content %}{% endblock %}
-</div>
-{% endblock %#}
 
 {% block content %}
     <div class="container">
@@ -105,6 +100,21 @@
         {% endfor %}
         {% block page_content %}{% endblock %}
     </div>
+
+    <div class="text-center" id="to-top" style="display: block;">
+        <i class="fa fa-chevron-up" id="btn-top" title="回到顶部"></i>
+    </div>
+    <div class="col-md-12 base-footer">
+        <footer class="footer">
+            <p>Powered by <a href="#">hikari</a>. Copyright © 2018.</p>
+            <p>All rights reserved.</p>
+            <!-- <p>
+                <a href="#">Back to top</a>
+            </p> -->
+
+        </footer>
+    </div>
+
 {% endblock %}
 
 
@@ -113,4 +123,5 @@
     {{ super() }} 
     {{ moment.include_moment() }}
     {{ moment.lang('zh-CN')}}
+    <script src="{{ url_for('static',filename='main.js') }}"></script>
 {% endblock %}

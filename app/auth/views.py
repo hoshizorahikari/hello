@@ -74,6 +74,10 @@ def before_request():
                 and request.blueprint != 'auth' \
                 and request.endpoint != 'static':
             return redirect(url_for('auth.unconfirmed'))
+        if current_user.disabled:
+            flash('你的账号已被和谐...')
+            logout_user()
+            return redirect(url_for('main.index'))
 
 
 @auth.route('/unconfirmed')

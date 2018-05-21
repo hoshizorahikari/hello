@@ -19,7 +19,7 @@ lib
 lib64
 __pycache__
 migrations
-*.hikari
+mail.hikari
 
 # Installer logs
 pip-log.txt
@@ -42,4 +42,7 @@ nosetests.xml
 
 # Virtual environment
 venv
+
+# log
+*.log
 

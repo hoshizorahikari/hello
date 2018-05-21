@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+
+{% block title %}hikari app - 管理用户{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <h1>管理用户</h1>
+</div>
+
+<table class="table table-hover users">
+        <thead>
+            <tr>
+                <th>用户</th>
+                <th>注册时间</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        {% for u in users %}
+        <tr>
+            <td>
+                <a href="{{ url_for('.user', username = u.username) }}">
+                    <img class="img-rounded user_img" src="{{ u.image }}">
+                    {{ u.username }}
+                </a>
+            </td>
+            <td>{{ moment(u.member_since).format('L') }}</td>
+            <td>
+                {% if u.disabled %}
+                <a class="btn btn-default btn-xs" 
+                href="{{ url_for('.user_enable', id=u.id, page=page) }}">
+                恢复</a>
+                {% else %}
+                <a class="btn btn-danger btn-xs" 
+                href="{{ url_for('.user_disable', id=u.id, page=page) }}">
+                和谐</a>
+                {% endif %}
+
+            </td>
+        </tr>
+    
+        {% endfor %}
+    </table>
+
+
+
+
+{% if pagination %}
+<div class="pagination">
+    {{ macros.pagination_widget(pagination, '.manage_users') }}
+</div>
+{% endif %}
+{% endblock %}

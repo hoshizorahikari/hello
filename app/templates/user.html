@@ -6,6 +6,10 @@
 {% endblock%} 
 
 {% block page_content %}
+{% if user.disabled %}
+ <h2>该用户已被和谐...</h2>
+{% else %}
+
 <div class="page-header">
     <img class="img-rounded profile-thumbnail" src="{{ user.image }}">
     <div class="profile-header">
@@ -84,6 +88,8 @@
     <div class="pagination_box">
         {{ macros.pagination_widget(pagination, '.user', username=user.username) }}
     </div>
+{% endif %}
+
 {% endif %}
 
 {% endblock %}

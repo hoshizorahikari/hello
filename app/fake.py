@@ -2,19 +2,21 @@ from random import randint
 from sqlalchemy.exc import IntegrityError
 from faker import Faker
 from . import db
-from .models import User, Blog, Follow, Comment
+from .models import User, Blog, Follow, Comment, Role
 
 
 def gen_fake_users(count=100):
     # 默认生成100个虚拟小伙伴
+
     fake = Faker('zh_CN')  # 支持中文
     i = 0
     while i < count:
         email = fake.email()
         u = User(email=email,
                  username=fake.user_name(),
-                 password='{}{}'.format(email.split(
-                     '@')[0], (127*i**3+53*i**2+23*i+97) % 10000),
+                 password='aaa111',
+                 #  password='{}{}'.format(email.split(
+                 #      '@')[0], (127*i**3+53*i**2+23*i+97) % 10000),
                  confirmed=True,
                  name=fake.name(),
                  location=fake.city(),
@@ -48,7 +50,8 @@ def gen_fake_blogs(count=100):
 def gen_follows(count=100):
     # 随机分配关注
     user_count = User.query.count()
-    hikari = User.query.get_or_404(username='hikari')
+    hikari = User.query.filter_by(username='hikari').first()
+
     if hikari:
         for j in range(user_count):
             u = User.query.offset(j).first()
