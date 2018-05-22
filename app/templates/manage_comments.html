@@ -11,7 +11,7 @@
 {% include '_comments.html' %}{# 导入子模板渲染评论 #}
 {% if pagination %}
 <div class="pagination">
-    {{ macros.pagination_widget(pagination, '.moderate') }}
+    {{ macros.pagination_widget(pagination, '.manage_comments') }}
 </div>
 {% endif %}
 {% endblock %}

@@ -20,7 +20,7 @@
         {% for b in blogs %}
         <tr>
              <td>
-                 <a href="{{ url_for(.blog), id=b.id }}">{{ b.title }}</a>
+                 <a href="{{ url_for('.blog', id=b.id) }}">{{ b.title }}</a>
             </td>
             <td>
                 <a href="{{ url_for('.user', username = b.author.username) }}">
@@ -51,7 +51,7 @@
 
 {% if pagination %}
 <div class="pagination">
-    {{ macros.pagination_widget(pagination, '.manage_users') }}
+    {{ macros.pagination_widget(pagination, '.manage_blogs') }}
 </div>
 {% endif %}
 {% endblock %}

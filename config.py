@@ -10,10 +10,10 @@ with open('mail.hikari') as f:
 
 
 def get_db_url(a):
-    return os.environ.get('{}DATABASE_URL'.format(a.upper())) or \
-        'sqlite:///{}'.format(os.path.join(basedir, '{}data.sqlite'.format(a)))
     # return os.environ.get('{}DATABASE_URL'.format(a.upper())) or \
-    #     'mysql+pymysql://root:mysql@localhost:3306/{}myblog'.format(a)
+    #     'sqlite:///{}'.format(os.path.join(basedir, '{}data.sqlite'.format(a)))
+    return os.environ.get('{}DATABASE_URL'.format(a.upper())) or \
+        'mysql+pymysql://root:mysql@localhost:3306/{}myblog'.format(a)
 
 
 class Config():  # 父类通用配置

@@ -68,16 +68,16 @@ def confirm(token):
 def before_request():
     # 用户已登录,未确认,请求端点不在蓝本,请求被拦截,重定向至/unconfirmed
     if current_user.is_authenticated:
+        if current_user.disabled:
+            flash('你的账号已被和谐...')
+            logout_user()
+            return redirect(url_for('main.index'))
         current_user.ping()  # 登录就刷新最后访问时间
         if not current_user.confirmed \
                 and request.endpoint \
                 and request.blueprint != 'auth' \
                 and request.endpoint != 'static':
             return redirect(url_for('auth.unconfirmed'))
-        if current_user.disabled:
-            flash('你的账号已被和谐...')
-            logout_user()
-            return redirect(url_for('main.index'))
 
 
 @auth.route('/unconfirmed')

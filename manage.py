@@ -83,8 +83,9 @@ def deploy():
     from flask_migrate import upgrade
 
     upgrade()  # 把数据库迁移到最新版本
-    init()
+    
     Role.insert_roles()  # 创建用户角色
+    init()
     # 为新博客添加一些生气...
     fake.gen_fake_users(100)
     fake.gen_fake_blogs(300)
@@ -103,7 +104,6 @@ def init():
               location='南京',
               about_me='python爱好者',
               role=mod_role,
-              iamge='/static/1411.png'
               )
     u2 = User(email='2091248018@qq.com',
               username='hikari',
@@ -113,8 +113,9 @@ def init():
               location='南京',
               about_me='管理员大人',
               role=admin_role,
-              image='/static/maki.png'
               )
+    u1.image='/static/1411.png'
+    u2.image='/static/maki.png'
 
     db.session.add_all([u1, u2])
 

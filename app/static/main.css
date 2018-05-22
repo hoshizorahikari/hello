@@ -3,6 +3,9 @@
 } */
 
 /* 个人资料头像缩略图 */
+a:hover{
+    text-decoration: none;
+}
 
 .profile-thumbnail {
     position: absolute;
@@ -104,7 +107,7 @@ div.blog-footer {
 }
 
 /* 关注者 */
-table.followers tr, table.users tr{
+table.followers tr, table.users tr,table.article tr{
     border-bottom: 1px solid #e0e0e0;
 }
 .user_img, .follow_img{
@@ -138,8 +141,10 @@ ul.comment_box li.comment:hover {
     background-color: #f0f0f0;
 }
 div.comment-date {
+    color: #999999;
     float: right;
 }
+
 div.comment-author {
     font-weight: bold;
 }

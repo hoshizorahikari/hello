@@ -6,8 +6,8 @@
     <link rel="shortcut icon" href="{{ url_for('static', filename = 'shortcuticon.png') }}" type="image/png"> 
     <link rel="icon" href="{{ url_for('static', filename = 'shortcuticon.png') }}" type="image/png"> 
     <link rel="stylesheet" type="text/css" href="https://netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='github-markdown.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='default.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='xcode.css') }}">
+    {#<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='default.css') }}">#}
     <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='main.css') }}">
     
 {% endblock %} 
@@ -41,24 +41,22 @@
                 <li>
                     <a href="{{ url_for('main.index') }}"><i class="fa fa-home mr-1"></i>&nbsp;首页</a>
                 </li>
-                {#% if current_user.is_authenticated %}
-                <li>   
-                    <a href="{{ url_for('main.user',username=current_user.username) }}">个人资料</a>
+                {% if current_user.can(Permission.WRITE) %}
+                <li>
+                    <a href="{{ url_for('main.create_blog') }}"><i class="fa fa-pencil-square-o"></i>&nbsp;创建博客</a>
                 </li>
-                {% endif %#}
+                {% endif %}
 
                 {% if current_user.can(Permission.MODERATE) %}
+
                 <li>   
-                        <a href="{{ url_for('main.create_blog') }}">新建博客</a>
-                </li>
-                <li>   
-                        <a href="{{ url_for('main.manage_blogs') }}">管理文章</a>
+                        <a href="{{ url_for('main.manage_blogs') }}"><i class="fa fa-file-text"></i>&nbsp;管理文章</a>
                     </li>
                 <li>   
-                    <a href="{{ url_for('main.moderate') }}">管理评论</a>
+                    <a href="{{ url_for('main.manage_comments') }}"><i class="fa fa-commenting"></i>&nbsp;管理评论</a>
                 </li>
                 <li>   
-                    <a href="{{ url_for('main.manage_users') }}">管理用户</a>
+                    <a href="{{ url_for('main.manage_users') }}"><i class="fa fa-user-o"></i>&nbsp;管理用户</a>
                 </li>
 
                 {% endif %}

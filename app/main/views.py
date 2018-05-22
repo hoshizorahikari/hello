@@ -27,20 +27,20 @@ def index():
 
     # 按时间戳降序, 最近的靠前
     # blogs = Blog.query.order_by(Blog.timestamp.desc()).all()
-    return render_template('index.html', blogs=blogs, index=True,
+    return render_template('index.html', blogs=blogs, summary=True,
                            show_followed=show_followed, pagination=pagination)
 
 
 @main.route('/create_blog', methods=['GET', 'POST'])
+@login_required
+@permission_required(Permission.WRITE)  # 是否有写博客的权限
 def create_blog():
     form = BlogForm()
-    # 是否有写博客的权限
-    if current_user.can(Permission.WRITE) and form.validate_on_submit():
-        blog = Blog(body=form.body.data,title=form.title.data,
+    if form.validate_on_submit():
+        blog = Blog(body=form.body.data, title=form.title.data,
                     author=current_user._get_current_object())
         db.session.add(blog)
         db.session.commit()
-        # return redirect(url_for('.index'))
         return redirect(url_for('.blog', id=blog.id))
     return render_template('create_blog.html', form=form)
 
@@ -53,11 +53,12 @@ def user(username):
     page = request.args.get('page', 1, type=int)
     # page为第几页;per_page为每页几个记录,默认20;
     # error_out默认为True,表示页数超过范围404错误,False则返回空列表
-    pagination = user.blogs.order_by(Blog.timestamp.desc()).paginate(
+    pagination = user.blogs.filter_by(
+        disabled=False).order_by(Blog.timestamp.desc()).paginate(
         page, per_page=current_app.config['BLOGS_PER_PAGE']//2+1, error_out=False)
     blogs = pagination.items
     # blogs = user.blogs.order_by(Blog.timestamp.desc()).all()
-    return render_template('user.html', user=user, blogs=blogs,
+    return render_template('user.html', user=user, blogs=blogs, summary=True,
                            pagination=pagination)
 
 
@@ -115,10 +116,6 @@ def edit_profile_admin(id):
     return render_template('edit_profile.html', form=form, user=user)
 
 
-# @main.route('/blog/<int:id>')
-# def blog(id):
-#     b = Blog.query.get_or_404(id)
-#     return render_template('blog.html', blogs=[b])
 
 
 @main.route('/edit/<int:id>', methods=['GET', 'POST'])
@@ -258,41 +255,44 @@ def blog(id):  # 单个博客文章页面
                            comments=comments, pagination=pagination)
 
 
-@main.route('/moderate')
+@main.route('/manage_comments')
 @login_required
 @permission_required(Permission.MODERATE)
-def moderate():
+def manage_comments():
     # 从数据库读取一页评论
     page = request.args.get('page', 1, type=int)
     pagination = Comment.query.order_by(Comment.timestamp.desc()).paginate(
         page, per_page=current_app.config['COMMENTS_PER_PAGE'],
         error_out=False)
     comments = pagination.items
-    return render_template('moderate.html', comments=comments,
+    return render_template('manage_comments.html', comments=comments,
                            pagination=pagination, page=page)
 
 
-@main.route('/moderate/enable/<int:id>')
+@main.route('/comment/enable/<int:id>')
 @login_required
 @permission_required(Permission.MODERATE)
-def moderate_enable(id):
+def comment_enable(id):
     c = Comment.query.get_or_404(id)
-    c.disabled = False
-    db.session.add(c)
-    # db.session.commit()
-    return redirect(url_for('.moderate',
+    if c.author.disabled:
+        flash('快去火星营救该用户!')
+    else:
+        c.disabled = False
+        db.session.add(c)
+        # db.session.commit()
+    return redirect(url_for('.manage_comments',
                             page=request.args.get('page', 1, type=int)))
 
 
-@main.route('/moderate/disable/<int:id>')
+@main.route('/comment/disable/<int:id>')
 @login_required
 @permission_required(Permission.MODERATE)
-def moderate_disable(id):
+def comment_disable(id):
     c = Comment.query.get_or_404(id)
     c.disabled = True
     db.session.add(c)
     # db.session.commit()
-    return redirect(url_for('.moderate',
+    return redirect(url_for('.manage_comments',
                             page=request.args.get('page', 1, type=int)))
 
 
@@ -359,7 +359,7 @@ def user_enable(id):
         db.session.add(c)
     for b in u.blogs.all():
         b.disabled = False
-        db.session.commit()
+        db.session.add(b)
     # db.session.commit()
     return redirect(url_for('.manage_users',
                             page=request.args.get('page', 1, type=int)))
@@ -370,8 +370,11 @@ def user_enable(id):
 @permission_required(Permission.MODERATE)
 def user_disable(id):
     u = User.query.get_or_404(id)
-    if u.can(Permission.MODERATE):
-        flash('不能和谐管理员和协管员!')
+    if u.can(Permission.ADMIN):
+        flash('不能和谐管理员!')
+    elif not current_user._get_current_object().can(Permission.ADMIN):
+        flash('不能和谐协管员!')
+
     else:
         # 将该用户文章和评论全部和谐
         u.disabled = True
@@ -381,8 +384,7 @@ def user_disable(id):
             db.session.add(c)
         for b in u.blogs.all():
             b.disabled = True
-            db.session.commit()
-    # db.session.commit()
+            db.session.add(b)
     return redirect(url_for('.manage_users',
                             page=request.args.get('page', 1, type=int)))
 
@@ -400,16 +402,20 @@ def manage_blogs():
     return render_template('manage_blogs.html', blogs=blogs,
                            pagination=pagination, page=page)
 
+
 @main.route('/blog/enable/<int:id>')
 @login_required
 @permission_required(Permission.MODERATE)
 def blog_enable(id):
     b = Blog.query.get_or_404(id)
-    b.disabled = False
-    db.session.add(b)
+    if b.author.disabled:
+        flash('快去火星营救该用户!')
+    else:
+        b.disabled = False
+        db.session.add(b)
 
-    # db.session.commit()
-    return redirect(url_for('.index',
+        # db.session.commit()
+    return redirect(url_for('.manage_blogs',
                             page=request.args.get('page', 1, type=int)))
 
 
@@ -421,5 +427,5 @@ def blog_disable(id):
     b.disabled = True
     db.session.add(b)
     # db.session.commit()
-    return redirect(url_for('.index',
+    return redirect(url_for('.manage_blogs',
                             page=request.args.get('page', 1, type=int)))

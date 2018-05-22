@@ -42,15 +42,12 @@ class Role(db.Model):
     @staticmethod
     def insert_roles():
         # 角色字符串为键,权限常量列表为值
-        user = [Permission.FOLLOW, Permission.COMMENT]
-        writer = user.append(Permission.WRITE)
-        mod = writer.append(Permission.MODERATE)
-        admin = mod.append(Permission.ADMIN)
+
         roles = {
-            'User': uuser,
-            'Writer': writer,
-            'Moderator': mod,
-            'Admin': admin,
+            'User': [Permission.FOLLOW, Permission.COMMENT],
+            'Writer': [Permission.FOLLOW, Permission.COMMENT, Permission.WRITE],
+            'Moderator': [Permission.FOLLOW, Permission.COMMENT, Permission.WRITE, Permission.MODERATE],
+            'Admin': [Permission.FOLLOW, Permission.COMMENT, Permission.WRITE, Permission.MODERATE, Permission.ADMIN],
         }
         default_role = 'User'
         for k, v in roles.items():
@@ -274,8 +271,9 @@ class User(UserMixin, db.Model):
 
     @property
     def followed_blogs(self):
-        # 关注的大神的所有文章
-        return Blog.query.filter_by(disabled=False).join(Follow, Follow.followed_id == Blog.author_id)\
+        # 关注的大神的所有没被和谐的文章
+        return Blog.query.filter_by(disabled=False).\
+            join(Follow, Follow.followed_id == Blog.author_id)\
             .filter(Follow.follower_id == self.id)
 
     @staticmethod
@@ -343,7 +341,6 @@ class Blog(db.Model):
     comments = db.relationship('Comment', backref='blog', lazy='dynamic')
     disabled = db.Column(db.Boolean, default=False)  # 逻辑删除文章
     title = db.Column(db.String(64), default='no title')
-    summary = db.Column(db.String(160), default='no summary')
 
     @staticmethod
     def on_changed_body(target, value, oldvalue, initiator):
@@ -361,6 +358,7 @@ class Blog(db.Model):
     def to_json(self):
         return {
             'url': url_for('api.get_blog', id=self.id),
+            'title': self.title,
             'body': self.body,
             'body_html': self.body_html,
             'timestamp': self.timestamp,
