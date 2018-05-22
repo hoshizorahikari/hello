@@ -10,12 +10,13 @@ class YOUKU():
     def __init__(self, m3u8):
         self.headers = {'User-Agent':
                         'Mozilla/5.0 (xyzdows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.104 Safari/537.36 Core/1.53.3211.400 QQBrowser/9.6.11523.400',
-                        'Referer': 'http://www.youku.com/'}
-        self.path = 'E:/迅雷下载/'
+                        }
+        self.path = 'D:/hikari星/youku/'
         self.m3u8 = m3u8
         self.video = []
         self.name = 'output'
         self.get_lst()
+        self.d = None
 
     def get_lst(self):
         html = self.get_m3u8()
@@ -26,6 +27,7 @@ class YOUKU():
         if len(self.video) == 0:
             return
         tmp = set([x[12:50] for x, y in self.video])
+        print('\n'.join([x for x,y in self.video]))
         if len(tmp) > 1:
             dct = {}
             for i in tmp:
@@ -43,6 +45,7 @@ class YOUKU():
         self.video.sort(key=lambda x: x[0])
         # print(self.video)
         self.can_youku()
+        # print('\n'.join([x for x,y in self.video]))
 
     def can_youku(self):
         """判断视频是否连续"""
@@ -79,16 +82,16 @@ class YOUKU():
             start = time.time()
             while True:
                 try:
-                    # res = requests.get(url, headers=self.headers)
-                    res = requests.get(url, headers=self.headers, stream=True)
+                    res = requests.get(url, headers=self.headers)
+                    # res = requests.get(url, headers=self.headers, stream=True)
                 except:
                     time.sleep(2)
                 else:
                     with open(file, 'wb') as f:
-                        # f.write(res.content)
-                        for chunk in res.iter_content(chunk_size=BUFF_SIZE):
-                            if chunk:
-                                f.write(chunk)
+                        f.write(res.content)
+                        #for chunk in res.iter_content(chunk_size=BUFF_SIZE):
+                            #if chunk:
+                                #f.write(chunk)
                     end = time.time()
                     t = end - start
                     if t < 60:
@@ -112,9 +115,9 @@ class YOUKU():
             txt, self.name)
         os.system(cmd)
         time.sleep(1)
-        for i, j in self.video:
-            os.remove(i)
-        os.remove(txt)
+        #for i, j in self.video:
+            #os.remove(i)
+        #os.remove(txt)
 
     def start(self):
         try:
@@ -167,7 +170,6 @@ class YOUKU():
             if k in self.name:
                 self.name = self.name.replace(k, v)
         time.sleep(1)
-        self.headers['Referer'] = url
         html = requests.get(self.m3u8, headers=self.headers).text
         return html
 

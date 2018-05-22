@@ -223,6 +223,7 @@ class User(UserMixin, db.Model):
             if self.role is None:
                 self.role = Role.query.filter_by(default=True).first()
         self.image = self.gravatar(size=256)
+        # db.session.add(self)
 
     def can(self, p):
         # 用户不为None且拥有权限p
@@ -373,6 +374,7 @@ class Blog(db.Model):
         if body is None or body == '':
             raise ValidationError('博客文章木有正文！')
         return Blog(body=body)
+    
 
 
 # on_changed_body注册在body字段, SQLAlchemy 'set'事件的监听程序
@@ -430,3 +432,34 @@ class Comment(db.Model):
 # on_changed_body注册在body字段, SQLAlchemy 'set'事件的监听程序
 # 只要body字段设了新值,函数自动被调用
 db.event.listen(Comment.body, 'set', Comment.on_changed_body)
+
+
+# Blog和Tag多对多关系的关联表
+classifications = db.Table('classifications',
+                           db.Column('blog_id', db.Integer,
+                                     db.ForeignKey('blogs.id')),
+                           db.Column('tag_id', db.Integer,
+                                     db.ForeignKey('tags.id')),
+                           )
+
+
+class Tag(db.Model):
+    __tablename__ = 'tags'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(20))
+    style = db.Column(db.String(20))
+    # 多对多关系
+    blogs = db.relationship('Blog', secondary=classifications,
+                            backref=db.backref('tags', lazy='dynamic'),
+                            lazy='dynamic')
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        lst = ['danger', 'warning', 'info', 'success', 'primary', 'default']
+        if self.style is None:
+            self.style = lst[(self.id-1) % len(lst)]
+        db.session.add(self)
+        db.session.commit()
+
+

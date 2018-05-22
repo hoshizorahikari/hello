@@ -1,5 +1,5 @@
 from flask import render_template, abort, flash, url_for, redirect, request, current_app
-from ..models import User, Role, Permission, Blog, Comment
+from ..models import User, Role, Permission, Blog, Comment, Tag
 from . import main
 from flask_login import login_required, current_user
 from .forms import EditProfileForm, EditProfileAdminForm, BlogForm, CommentForm
@@ -39,6 +39,16 @@ def create_blog():
     if form.validate_on_submit():
         blog = Blog(body=form.body.data, title=form.title.data,
                     author=current_user._get_current_object())
+        tags = form.tags.data.split('|')
+        for i in tags:
+            t = i.strip()
+            if t:  # 非空字符串
+                tag = Tag.query.filter_by(name=t).first()
+                if tag is None:  # 标签不存在,创建之
+                    tag = Tag(name=t)
+                tag.blogs.append(blog)  # 都在Tag一端操作
+                db.session.add(tag)
+
         db.session.add(blog)
         db.session.commit()
         return redirect(url_for('.blog', id=blog.id))
@@ -116,8 +126,6 @@ def edit_profile_admin(id):
     return render_template('edit_profile.html', form=form, user=user)
 
 
-
-
 @main.route('/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit(id):
@@ -130,6 +138,20 @@ def edit(id):
     if form.validate_on_submit():
         b.body = form.body.data
         b.title = form.title.data
+
+        tags = form.tags.data.split('|')
+        for i in tags:
+            t = i.strip()
+            if t:  # 非空字符串
+                tag = Tag.query.filter_by(name=t).first()
+                if tag is None:  # 标签不存在,创建之
+                    tag = Tag(name=t)
+                # tag.blogs.append(blog)  # 都在Tag一端操作
+                # db.session.add(tag)
+
+        db.session.add(blog)
+        db.session.commit()
+
         db.session.add(b)
         # db.session.commit()
         flash('修改成功！')

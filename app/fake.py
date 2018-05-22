@@ -2,7 +2,7 @@ from random import randint
 from sqlalchemy.exc import IntegrityError
 from faker import Faker
 from . import db
-from .models import User, Blog, Follow, Comment, Role
+from .models import User, Blog, Follow, Comment, Role, Tag
 
 
 def gen_fake_users(count=100):
@@ -90,3 +90,22 @@ def gen_fake_comments(count=100):
 
         db.session.add(c)
     db.session.commit()
+
+
+def gen_fake_tags(count=3):
+    n = Tag.query, count()
+    if n == 0:
+        lst = ['Java', 'Python', 'JavaScript', 'C++',
+               'C', 'Data Structure', 'HTML', 'Flask']
+        for i in lst:
+            t = Tag(name=i)
+            db.session.add(t)
+            db.session.commit()
+        n = len(lst)
+    blogs = Blog.query.all()
+    for b in blogs:
+        for i in range(randint(1, count)):
+            t = Tag.query.offset(randint(0, n - 1)).first()
+            t.blogs.append(b)
+            db.session.add(t)
+            db.session.commit()
