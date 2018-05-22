@@ -331,6 +331,15 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
+# Blog和Tag多对多关系的关联表
+classifications = db.Table('classifications',
+                           db.Column('blog_id', db.Integer,
+                                     db.ForeignKey('blogs.id')),
+                           db.Column('tag_id', db.Integer,
+                                     db.ForeignKey('tags.id')),
+                           )
+
+
 class Blog(db.Model):
     __tablename__ = 'blogs'
     id = db.Column(db.Integer, primary_key=True)
@@ -342,6 +351,11 @@ class Blog(db.Model):
     comments = db.relationship('Comment', backref='blog', lazy='dynamic')
     disabled = db.Column(db.Boolean, default=False)  # 逻辑删除文章
     title = db.Column(db.String(64), default='no title')
+
+    # 多对多关系
+    tags = db.relationship('Tag', secondary=classifications,
+                           backref=db.backref('blogs', lazy='dynamic'),
+                           lazy='dynamic')
 
     @staticmethod
     def on_changed_body(target, value, oldvalue, initiator):
@@ -374,7 +388,30 @@ class Blog(db.Model):
         if body is None or body == '':
             raise ValidationError('博客文章木有正文！')
         return Blog(body=body)
-    
+
+    def add_tag(self, tag_name):
+        if not self.has_tag(tag_name):
+            tag = Tag.query.filter_by(name=tag_name).first()
+            if tag is None:
+                tag = Tag(name=tag_name)
+            self.tags.append(tag)
+
+    def add_tags(self, tag_name_lst):
+        for i in tag_name_lst:
+            self.add_tag(i)
+
+    def has_tag(self, tag_name):
+        return self.tags.filter_by(name=tag_name).first() is not None
+
+    def remove_tag(self, tag_name):
+        t = self.tags.filter_by(name=tag_name).first()
+        if t:
+            self.tags.remove(t)
+
+    def clear_tags(self):
+        for t in self.tags.all():
+            self.tags.remove(t)
+
 
 
 # on_changed_body注册在body字段, SQLAlchemy 'set'事件的监听程序
@@ -434,32 +471,19 @@ class Comment(db.Model):
 db.event.listen(Comment.body, 'set', Comment.on_changed_body)
 
 
-# Blog和Tag多对多关系的关联表
-classifications = db.Table('classifications',
-                           db.Column('blog_id', db.Integer,
-                                     db.ForeignKey('blogs.id')),
-                           db.Column('tag_id', db.Integer,
-                                     db.ForeignKey('tags.id')),
-                           )
-
-
 class Tag(db.Model):
     __tablename__ = 'tags'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(20))
-    style = db.Column(db.String(20))
-    # 多对多关系
-    blogs = db.relationship('Blog', secondary=classifications,
-                            backref=db.backref('tags', lazy='dynamic'),
-                            lazy='dynamic')
+    name = db.Column(db.String(64), unique=True)
+    style = db.Column(db.String(64))
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        db.session.add(self)
+        db.session.commit()
         lst = ['danger', 'warning', 'info', 'success', 'primary', 'default']
         if self.style is None:
             self.style = lst[(self.id-1) % len(lst)]
-        db.session.add(self)
-        db.session.commit()
-
-
+            db.session.add(self)
+            db.session.commit()

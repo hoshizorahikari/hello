@@ -10,7 +10,7 @@ if os.environ.get('FLASK_COVERAGE'):
 
 from flask_migrate import Migrate, MigrateCommand
 from app import create_app, db
-from app.models import User, Role, Permission, Blog, Comment, Follow
+from app.models import User, Role, Permission, Blog, Comment, Follow,Tag
 import app.fake as fake
 from flask_script import Manager, Shell
 
@@ -26,7 +26,7 @@ migrate = Migrate(app, db)
 
 
 def make_shell_context():
-    return dict(app=app, db=db, User=User, Role=Role, Permission=Permission, Blog=Blog, fake=fake, Comment=Comment)
+    return dict(app=app, db=db, User=User, Role=Role, Permission=Permission, Blog=Blog, fake=fake, Comment=Comment,Tag=Tag)
 
 
 manager.add_command("shell", Shell(make_context=make_shell_context))
@@ -91,6 +91,7 @@ def deploy():
     fake.gen_fake_blogs(300)
     fake.gen_follows(1000)
     fake.gen_fake_comments(1000)
+    fake.gen_fake_tags()
 
 
 def init():

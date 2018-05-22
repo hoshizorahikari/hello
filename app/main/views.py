@@ -24,10 +24,11 @@ def index():
     pagination = query.order_by(Blog.timestamp.desc()).paginate(
         page, per_page=current_app.config['BLOGS_PER_PAGE'], error_out=False)
     blogs = pagination.items
+    tags=Tag.query.all()
 
     # 按时间戳降序, 最近的靠前
     # blogs = Blog.query.order_by(Blog.timestamp.desc()).all()
-    return render_template('index.html', blogs=blogs, summary=True,
+    return render_template('index.html', blogs=blogs, summary=True,tags=tags,
                            show_followed=show_followed, pagination=pagination)
 
 
@@ -40,15 +41,12 @@ def create_blog():
         blog = Blog(body=form.body.data, title=form.title.data,
                     author=current_user._get_current_object())
         tags = form.tags.data.split('|')
-        for i in tags:
-            t = i.strip()
-            if t:  # 非空字符串
-                tag = Tag.query.filter_by(name=t).first()
-                if tag is None:  # 标签不存在,创建之
-                    tag = Tag(name=t)
-                tag.blogs.append(blog)  # 都在Tag一端操作
-                db.session.add(tag)
-
+        tags=[x.strip() for x in tags]
+        # for i in tags:
+        #     t = i.strip()
+        #     if t:  # 非空字符串
+        #         blog.add_tag(t)
+        blog.add_tags(tags)
         db.session.add(blog)
         db.session.commit()
         return redirect(url_for('.blog', id=blog.id))
@@ -140,16 +138,10 @@ def edit(id):
         b.title = form.title.data
 
         tags = form.tags.data.split('|')
-        for i in tags:
-            t = i.strip()
-            if t:  # 非空字符串
-                tag = Tag.query.filter_by(name=t).first()
-                if tag is None:  # 标签不存在,创建之
-                    tag = Tag(name=t)
-                # tag.blogs.append(blog)  # 都在Tag一端操作
-                # db.session.add(tag)
-
-        db.session.add(blog)
+        tags=[x.strip() for x in tags]
+        b.clear_tags() # 暴力方法, 清空所有标签,再添加全部
+        b.add_tags(tags) 
+        db.session.add(b)
         db.session.commit()
 
         db.session.add(b)
@@ -158,6 +150,7 @@ def edit(id):
         return redirect(url_for('.blog', id=b.id))
     form.body.data = b.body
     form.title.data = b.title
+    form.tags.data='|'.join([t.name for t in b.tags])
     return render_template('edit_blog.html', form=form)
 
 

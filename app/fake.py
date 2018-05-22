@@ -93,7 +93,7 @@ def gen_fake_comments(count=100):
 
 
 def gen_fake_tags(count=3):
-    n = Tag.query, count()
+    n = Tag.query.count()
     if n == 0:
         lst = ['Java', 'Python', 'JavaScript', 'C++',
                'C', 'Data Structure', 'HTML', 'Flask']
@@ -106,6 +106,6 @@ def gen_fake_tags(count=3):
     for b in blogs:
         for i in range(randint(1, count)):
             t = Tag.query.offset(randint(0, n - 1)).first()
-            t.blogs.append(b)
-            db.session.add(t)
+            b.tags.append(t)
+            db.session.add(b)
             db.session.commit()

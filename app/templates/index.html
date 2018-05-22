@@ -18,15 +18,45 @@
 
 
 {# 选项卡,显示全部文章or关注的大神的文章#}
-<div class="blog-tabs">
-    <ul class="nav nav-tabs">
+<div class="blog-tabs row">
+    {#<ul class="nav nav-tabs">
         <li{% if not show_followed %} class="active"{% endif %}><a href="{{ url_for('.show_all') }}">全部</a></li>
         {% if current_user.is_authenticated %}
         <li{% if show_followed %} class="active"{% endif %}><a href="{{ url_for('.show_followed') }}">我关注的人</a></li>
         {% endif %}
-    </ul>
+    </ul>#}
     {# 显示博客文章的ul #}
     {% include '_blogs.html' %}
+    <div class="col-sm-3 col-sm-offset-1 blog-sidebar">
+        <div class="sidebar-module sidebar-module-inset">
+            <h4>About me</h4>
+            <p>欢迎访问我的个人博客～</p>
+        </div>
+        <div class="sidebar-module">
+                <h4><b>关于我的</b></h4>
+                <ol class="list-unstyled">                           
+                    <li><a href="https://github.com/hoshizorahikari" target="_blank">
+                        GitHub 
+                        <img class="github" src="{{ url_for('static', filename='github.ico') }}"></a>
+                    </li>
+                    <li><a href="http://blog.csdn.net/" target="_blank">CSDN博客 
+                        <img class="github" src="{{ url_for('static', filename='csdn.ico') }}"></a>
+                    </li>
+                    <li><a href="mailto:208343741@qq.com">208343741@qq.com</a></li>
+                </ol>
+                <hr>
+                <h4><b>分类</b></h4>
+                <ol class="list-unstyled">
+                    <li><a href="{{ url_for('main.index')}}">全部</a></li>
+                    {% for t in tags %}
+                    <li><a href="{{ url_for('main.index')}}">{{ t.name }}&nbsp;({{ t.blogs.count() }})</a></li>
+                    {% endfor %}
+                </ol>
+            </div>   
+
+    </div>
+
+
 </div>
 
 
@@ -34,7 +64,7 @@
 
 {# 分页 #}
 {%  if pagination %}
-    <div class="pagination_box">
+    <div class="pagination_box col-md-8">
         {{ macros.pagination_widget(pagination,'.index') }}
     </div>
 {% endif %}

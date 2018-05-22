@@ -3,7 +3,8 @@
 } */
 
 /* 个人资料头像缩略图 */
-a:hover{
+
+a:hover {
     text-decoration: none;
 }
 
@@ -62,6 +63,7 @@ div.blog-content {
 }
 
 /* 文章作者头像 */
+
 .auther-thumbnail {
     position: absolute;
     max-width: 40px;
@@ -76,21 +78,30 @@ div.pagination_box {
 }
 
 /* markdown预览框 */
+
 div.flask-pagedown-preview {
     margin: 10px 0px 10px 0px;
     border: 1px solid #e0e0e0;
     padding: 4px;
 }
+
 /* markdown预览和博客文章的h1,h2,h3样式 */
-div.flask-pagedown-preview h1,.blog-body h1 {
+
+div.flask-pagedown-preview h1,
+.blog-body h1 {
     font-size: 200%;
 }
-div.flask-pagedown-preview h2,.blog-body h2 {
+
+div.flask-pagedown-preview h2,
+.blog-body h2 {
     font-size: 160%;
 }
-div.flask-pagedown-preview h3,.blog-body h3 {
+
+div.flask-pagedown-preview h3,
+.blog-body h3 {
     font-size: 125%;
 }
+
 /*
 .blog-body h1 {
     font-size: 140%;
@@ -102,15 +113,21 @@ div.flask-pagedown-preview h3,.blog-body h3 {
     font-size: 120%;
 }
 */
+
 div.blog-footer {
     text-align: right;
 }
 
 /* 关注者 */
-table.followers tr, table.users tr,table.article tr{
+
+table.followers tr,
+table.users tr,
+table.article tr {
     border-bottom: 1px solid #e0e0e0;
 }
-.user_img, .follow_img{
+
+.user_img,
+.follow_img {
     max-width: 30px;
     max-height: 30px;
 }
@@ -118,28 +135,34 @@ table.followers tr, table.users tr,table.article tr{
 div.blog-tabs {
     margin-top: 16px;
 }
+
 div.blog-tabs ul.blog_box {
     margin: 0px;
     border-top: none;
 }
 
 /* 评论 */
+
 ul.comment_box {
     list-style-type: none;
     padding: 0px;
     margin: 16px 0px 0px 0px;
 }
+
 ul.comment_box li.comment {
     margin-left: 32px;
     padding: 8px;
     border-bottom: 1px solid #e0e0e0;
 }
+
 ul.comment_box li.comment:nth-child(1) {
     border-top: 1px solid #e0e0e0;
 }
+
 ul.comment_box li.comment:hover {
     background-color: #f0f0f0;
 }
+
 div.comment-date {
     color: #999999;
     float: right;
@@ -148,18 +171,21 @@ div.comment-date {
 div.comment-author {
     font-weight: bold;
 }
+
 div.comment-thumbnail {
     position: absolute;
 }
+
 div.comment-content {
     margin-left: 48px;
     min-height: 48px;
 }
+
 div.comment-form {
     margin: 16px 0px 16px 32px;
 }
 
-div.base-footer{
+div.base-footer {
     margin-top: 20px;
     text-align: center;
 }
@@ -170,22 +196,58 @@ div.base-footer{
     right: 5%;
     height: 36px;
     width: 36px;
-    border-radius: 50%; /*圆形*/
+    border-radius: 50%;
+    /*圆形*/
     border: 2px solid #fff;
     background-color: #34495e;
     top: auto;
-    display:none;
+    display: none;
     cursor: pointer;
     color: #fff;
     opacity: .4;
-    z-index:9999; /*置顶?*/
+    z-index: 9999;
+    /*置顶?*/
 }
-#to-top:hover{
-    opacity: .9; /*鼠标悬浮颜色变深*/
+
+#to-top:hover {
+    opacity: .9;
+    /*鼠标悬浮颜色变深*/
 }
+
 #to-top i {
     font-size: 18px;
     line-height: 30px;
     text-align: center;
     display: block;
 }
+
+div.tags {
+    float: left;
+}
+
+div.pagination {
+    text-align: center;
+}
+
+/* Sidebar modules for boxing content */
+.sidebar-module {
+    padding: 15px;
+    margin: 0 -15px 15px;
+  }
+  .sidebar-module-inset {
+    padding: 15px;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+  }
+  .sidebar-module-inset p:last-child,
+  .sidebar-module-inset ul:last-child,
+  .sidebar-module-inset ol:last-child {
+    margin-bottom: 0;
+  }
+/*
+ *  About me
+ */
+ .github {
+    width:6%;
+    height:6%;
+}  

@@ -38,8 +38,8 @@ class SQLiteHelper():
 
 if __name__ == '__main__':
     s = SQLiteHelper('dev_data.sqlite')
-    s.execute("UPDATE blogs set summary='no summary'")
-    ret= s.query("select summary from blogs")
+    s.execute("delete from tags where id=9")
+    ret= s.query("select * from tags")
     if ret:
         for tup in ret:
             print(tup)

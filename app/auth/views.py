@@ -13,15 +13,20 @@ def login():
     if form.validate_on_submit():
         # 根据输入邮箱查询用户
         user = User.query.filter_by(email=form.email.data.lower()).first()
+        
         # 如果用户存在且密码正确
         if user and user.verify_password(form.password.data):
-            login_user(user, form.remember_me.data)
-            nxt = request.args.get('next')
-            # 没有next重定向到首页
-            if nxt is None or not nxt.startswith('/'):
-                nxt = url_for('main.index')
-            return redirect(nxt)
-        flash('用户名或密码错误！')  # 认证失败
+            if user.disabled:
+                flash('你的账号已被和谐！')
+            else:
+                login_user(user, form.remember_me.data)
+                nxt = request.args.get('next')
+                # 没有next重定向到首页
+                if nxt is None or not nxt.startswith('/'):
+                    nxt = url_for('main.index')
+                return redirect(nxt)
+        else:
+            flash('用户名或密码错误！')  # 认证失败
     return render_template('auth/login.html', form=form)
 
 

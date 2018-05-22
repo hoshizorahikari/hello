@@ -86,7 +86,7 @@
 <h3>{{ user.username }}的文章</h3>
 {% include '_blogs.html'%}
 {%  if pagination %}
-    <div class="pagination_box">
+    <div class="pagination_box col-md-8">
         {{ macros.pagination_widget(pagination, '.user', username=user.username) }}
     </div>
 {% endif %}

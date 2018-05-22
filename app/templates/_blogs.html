@@ -1,4 +1,4 @@
-<ul class="blog_box">
+<ul class="blog_box col-md-8">
     {% for blog in blogs %}
         <li class="blog">
             
@@ -19,7 +19,14 @@
                         {{ blog.author.username }}
                     </a>
                 </div>
-                <h2><a href="{{ url_for('.blog',id=blog.id) }}">{{ blog.title }}</a></h2>
+
+                <h3 style=><a href="{{ url_for('.blog',id=blog.id) }}">{{ blog.title }}</a></h3>
+               
+
+              
+
+       
+
                 <div class="blog-body">
                     {% if summary %}
                         {% if blog.body_html %}
@@ -48,6 +55,14 @@
                         <span class="label label-danger">和谐</span>
                     </a>
                     {% endif %#}
+                    {% if not summary %}
+                    <div class="tags">                    
+                        {% for tag in blog.tags %}
+                        <span class="label label-{{ tag.style }}">{{ tag.name }}</span>&nbsp;
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
 
 
                     {% if current_user == blog.author %}
@@ -71,6 +86,7 @@
 
 
             </div>
+     
         </li>
 
     {% endfor %}
