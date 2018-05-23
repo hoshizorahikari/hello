@@ -55,7 +55,7 @@ class EditProfileAdminForm(FlaskForm):  # 管理员使用的资料编辑表单�
 
 class BlogForm(FlaskForm):  # 撰写博客表单类
     title = StringField('标题', validators=[DataRequired()])
-    tags = StringField('标签')#, validators=[DataRequired()])
+    tags = StringField('标签')  # , validators=[DataRequired()])
     body = PageDownField('写点什么吧...', validators=[DataRequired()])
     submit = SubmitField('提交')
 
@@ -63,6 +63,3 @@ class BlogForm(FlaskForm):  # 撰写博客表单类
 class CommentForm(FlaskForm):  # 写评论的表单类
     body = PageDownField('写点什么吧...', validators=[DataRequired()])
     submit = SubmitField('提交')
-
-
-	

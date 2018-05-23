@@ -1,7 +1,6 @@
 <ul class="blog_box col-sm-8">
     {% for blog in blogs %}
         <li class="blog">
-            
             <div class="blog-thumbnail">
                 {# 文章作者头像缩略图, 带链接 #}
                 <a href="{{ url_for('.user', username=blog.author.username) }}">
@@ -10,7 +9,6 @@
             </div>
             
             <div class="blog-content">
-                   
                 <div class="blog-date">
                     {{ moment(blog.timestamp).fromNow() }}
                 </div>
@@ -19,13 +17,7 @@
                         {{ blog.author.username }}
                     </a>
                 </div>
-
                 <h2><a href="{{ url_for('.blog', id=blog.id) }}">{{ blog.title }}</a></h2>
-               
-
-              
-
-       
 
                 <div class="blog-body">
                     {% if summary %}
@@ -46,7 +38,6 @@
                             {{ blog.body }}
                         {% endif %}
                     {% endif %}
-
                 </div>
 
                 {% if not summary %}
@@ -64,23 +55,18 @@
                 <div class="blog-footer">{# 文章的底部 #}
                     {% if current_user == blog.author %}
                         <a href="{{ url_for('.edit',id=blog.id) }}">
-                           
                             <span class="label label-primary"><i class="fa fa-pencil-square-o"></i>&nbsp;编辑</span>
                         </a>
                     {%elif current_user.is_admin() %}
                         <a href="{{ url_for('.edit',id=blog.id) }}">
                             <span class="label label-danger"><i class="fa fa-pencil-square-o"></i>&nbsp;编辑&nbsp;[ADMIN]</span>
                         </a>
-
                     {% endif %}
 
 
                     <a href="{{ url_for('.blog', id=blog.id) }}#comments">
                         <span class="label label-primary"><i class="fa fa-commenting"></i>&nbsp;评论({{ blog.comments.count() }})</span>
                     </a>
-                
-
-
                 </div>
 
 

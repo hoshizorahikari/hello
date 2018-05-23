@@ -59,7 +59,6 @@ def user(username):
         disabled=False).order_by(Blog.timestamp.desc()).paginate(
         page, per_page=current_app.config['BLOGS_PER_PAGE']//2+1, error_out=False)
     blogs = pagination.items
-    # blogs = user.blogs.order_by(Blog.timestamp.desc()).all()
     return render_template('user.html', user=user, blogs=blogs, summary=True,
                            pagination=pagination)
 
@@ -130,19 +129,11 @@ def edit(id):
     if form.validate_on_submit():
         b.body = form.body.data
         b.title = form.title.data
-
-        # tags = form.tags.data.split('|')
-        # tags = [x.strip() for x in tags]
         tags = [x.strip() for x in form.tags.data.split('|') if x.strip()]
-
         b.clear_tags()  # 暴力方法, 清空所有标签,再添加全部
         b.add_tags(tags)
-
         db.session.add(b)
         db.session.commit()
-
-        db.session.add(b)
-        # db.session.commit()
         flash('修改成功！')
         return redirect(url_for('.blog', id=b.id))
     form.body.data = b.body
@@ -228,20 +219,7 @@ def followed_by(username):
 from flask import make_response
 
 
-@main.route('/all')
-@login_required
-def show_all():
-    resp = make_response(redirect(url_for('.index')))
-    resp.set_cookie('show_followed', '', max_age=30*24*60*60)
-    return resp
 
-
-@main.route('/followed')
-@login_required
-def show_followed():
-    resp = make_response(redirect(url_for('.index')))
-    resp.set_cookie('show_followed', '1', max_age=30*24*60*60)
-    return resp
 
 
 @main.route('/blog/<int:id>', methods=['GET', 'POST'])
@@ -446,11 +424,13 @@ def blog_disable(id):
 @main.route('/tag/<int:id>')
 def tag(id):
     tag = Tag.query.get_or_404(id)
+    blogs = tag.blogs.filter_by(disabled=False)
+    if blogs.count() == 0:
+        abort(404)
     # 查询该标签的文章列表, 按时间戳降序
     page = request.args.get('page', 1, type=int)
 
-    pagination = tag.blogs.filter_by(
-        disabled=False).order_by(Blog.timestamp.desc()).paginate(
+    pagination = blogs.order_by(Blog.timestamp.desc()).paginate(
         page, per_page=current_app.config['BLOGS_PER_PAGE']//2+1, error_out=False)
     blogs = pagination.items
     return render_template('tag.html', tag=tag, blogs=blogs, summary=True,

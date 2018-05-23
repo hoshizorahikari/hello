@@ -1,0 +1,88 @@
+<div class="page-header row">
+    <div class="col-sm-4">
+        <img class="img-rounded profile-thumbnail" src="{{ user.image }}">
+    </div>
+        
+    <div class="profile-header col-sm-6">
+        <h1>{{ user.username }}</h1>
+        {# name和location在同一个p标签内渲染 #} 
+        {% if user.name or user.location %}
+            <p>
+                {% if user.name %}
+                    {{ user.name }}
+                {% endif %} 
+                {% if user.location %} {# 翻墙吧 #} 
+                    from {{ user.location }}
+                {% endif %}
+            </p>
+        {% endif %} 
+
+        {% if current_user.is_admin() %}
+            {# 登录用户为管理员, 可以给该页面用户发邮件? #} 
+            <p>
+                <a href="mailto:{{ user.email }}">{{ user.email }}</a>
+            </p> 
+        {% endif %} 
+    
+        {% if user.about_me %}
+            <p>{{ user.about_me }}</p>
+        {% endif %}
+    
+        <p>
+            注册日期：{{ moment(user.member_since).format('L') }}<br>
+            最近登录：{{ moment(user.last_seen).fromNow() }}
+        </p>
+    
+        <p>
+            {% if user == current_user %}我{% else %}ta{% endif %}的博客有
+            {{ user.blogs.count() }}篇文章 | {{ user.comments.count() }}条评论
+        </p>
+
+         {# 关注&取消关注 #}
+        <div>
+            {% if current_user.can(Permission.FOLLOW) and user != current_user %}
+                {% if not current_user.is_following(user) %}
+                    <a href="{{ url_for('.follow', username=user.username) }}" class="btn btn-primary">关注</a>
+                {% else %}
+                    <a href="{{ url_for('.unfollow', username=user.username) }}" class="btn btn-default">取消关注</a>
+                {% endif %}
+            {% endif %}
+            <a href="{{ url_for('.followers', username=user.username) }}">
+                关注{% if user == current_user %}我{% else %}ta{% endif %}的人: 
+                <span class="badge">
+                    {{ user.followers.count() }}
+                </span>
+            </a>
+            <a href="{{ url_for('.followed_by', username=user.username) }}">
+                {% if user == current_user %}我{% else %}ta{% endif %}关注的人: 
+                <span class="badge">
+                    {{ user.followed.count() }}
+                </span>
+            </a>
+        </div>
+
+        {% if current_user.is_authenticated and user != current_user and user.is_following(current_user) %}
+            <div>
+                <span class="label label-default">ta关注了你</span>
+            </div>
+        {% endif %}
+            {# user == current_user和current_user.is_authenticated的区别? #} 
+                {# user是该资料页的主人,current_user是当前登录的用户, 不一样的... 自问自答... #}
+        {% if user == current_user %}
+            <p>
+                <a class="btn btn-default" href="{{ url_for('.edit_profile') }}">
+                    编辑资料
+                </a>
+            </p>
+        {% endif %} 
+    
+        {% if current_user.is_admin() %}
+            <p>
+                <a class="btn btn-danger" href="{{ url_for('.edit_profile_admin', id=user.id) }}">
+                    编辑资料 [ADMIN]
+                </a>
+            </p>
+        {% endif %}
+            
+    </div>
+</div>

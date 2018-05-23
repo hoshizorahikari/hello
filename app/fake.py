@@ -93,6 +93,7 @@ def gen_fake_comments(count=100):
 
 
 def gen_fake_tags(count=3):
+    # 为每篇文章分配1~count个标签
     n = Tag.query.count()
     if n == 0:
         lst = ['Java', 'Python', 'JavaScript', 'C++',
