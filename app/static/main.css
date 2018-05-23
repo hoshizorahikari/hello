@@ -88,17 +88,17 @@ div.flask-pagedown-preview {
 /* markdown预览和博客文章的h1,h2,h3样式 */
 
 div.flask-pagedown-preview h1,
-.blog-body h1 {
+.blog-content h1 {
     font-size: 200%;
 }
 
 div.flask-pagedown-preview h2,
-.blog-body h2 {
+.blog-content h2 {
     font-size: 160%;
 }
 
 div.flask-pagedown-preview h3,
-.blog-body h3 {
+.blog-content h3 {
     font-size: 125%;
 }
 
@@ -221,8 +221,10 @@ div.base-footer {
     display: block;
 }
 
-div.tags {
+div.blog-tags span {
     float: left;
+    padding:0.08rem,0.4rem;
+    margin:0.3rem;
 }
 
 div.pagination {
@@ -230,24 +232,43 @@ div.pagination {
 }
 
 /* Sidebar modules for boxing content */
+
 .sidebar-module {
     padding: 15px;
     margin: 0 -15px 15px;
-  }
-  .sidebar-module-inset {
+}
+
+.sidebar-module-inset {
     padding: 15px;
     background-color: #f5f5f5;
     border-radius: 4px;
-  }
-  .sidebar-module-inset p:last-child,
-  .sidebar-module-inset ul:last-child,
-  .sidebar-module-inset ol:last-child {
+}
+
+.sidebar-module-inset p:last-child,
+.sidebar-module-inset ul:last-child,
+.sidebar-module-inset ol:last-child {
     margin-bottom: 0;
-  }
+}
+
 /*
  *  About me
  */
- .github {
-    width:6%;
-    height:6%;
-}  
+
+.github {
+    max-width: 32px;
+    max-height: 32px;
+    /* height:6%; */
+}
+
+.about-me li {
+    width: 50%;
+    float: left;
+    text-align: center;
+}
+
+.index-tags a {
+    float: left;
+    padding:0.08rem,0.4rem;
+    margin:0.3rem;
+}
+

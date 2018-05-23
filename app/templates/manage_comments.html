@@ -9,8 +9,9 @@
 </div>
 {% set moderate = True %}{# 定义模板变量moderate为True#}
 {% include '_comments.html' %}{# 导入子模板渲染评论 #}
+
 {% if pagination %}
-<div class="pagination">
+<div class="pagination col-sm-8">
     {{ macros.pagination_widget(pagination, '.manage_comments') }}
 </div>
 {% endif %}

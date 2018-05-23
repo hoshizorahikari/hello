@@ -28,30 +28,40 @@
     {# 显示博客文章的ul #}
     {% include '_blogs.html' %}
     <div class="col-sm-3 col-sm-offset-1 blog-sidebar">
+        {#
         <div class="sidebar-module sidebar-module-inset">
             <h4>About me</h4>
             <p>欢迎访问我的个人博客～</p>
-        </div>
-        <div class="sidebar-module">
+        </div>#}
+        <div class="sidebar-module clearfix">
                 <h4><b>关于我的</b></h4>
-                <ol class="list-unstyled">                           
+                <ul class="about-me">                           
                     <li><a href="https://github.com/hoshizorahikari" target="_blank">
-                        GitHub 
-                        <img class="github" src="{{ url_for('static', filename='github.ico') }}"></a>
+                        <img class="github" src="{{ url_for('static', filename='github.png') }}">
+                        <p>GitHub</p>
+                        </a>
                     </li>
-                    <li><a href="http://blog.csdn.net/" target="_blank">CSDN博客 
-                        <img class="github" src="{{ url_for('static', filename='csdn.ico') }}"></a>
+                    <li><a href="http://blog.csdn.net/" target="_blank">
+                        <img class="github" src="{{ url_for('static', filename='csdn.ico') }}">
+                        <p>CSDN</p>
+                        </a>
                     </li>
-                    <li><a href="mailto:208343741@qq.com">208343741@qq.com</a></li>
-                </ol>
+                    
+                </ul>
                 <hr>
                 <h4><b>分类</b></h4>
-                <ol class="list-unstyled">
-                    <li><a href="{{ url_for('main.index')}}">全部</a></li>
-                    {% for t in tags %}
-                    <li><a href="{{ url_for('main.index')}}">{{ t.name }}&nbsp;({{ t.blogs.count() }})</a></li>
+                <div class="index-tags">                    
+                    {% for tag in tags %}
+                    {#% if tag.blogs.filter_by(disabled=False).count()>0 %#}
+                        <a href="{{ url_for('.tag', id=tag.id) }}" class="col-sm-5">
+                            <span class="label label-{{ tag.style }}">
+                                {{ tag.name }}
+                            </span>
+                        </a>
+                        {#% endif %#}
                     {% endfor %}
-                </ol>
+                </div>
+  
             </div>   
 
     </div>
@@ -64,7 +74,7 @@
 
 {# 分页 #}
 {%  if pagination %}
-    <div class="pagination_box col-md-8">
+    <div class="pagination col-sm-8">
         {{ macros.pagination_widget(pagination,'.index') }}
     </div>
 {% endif %}

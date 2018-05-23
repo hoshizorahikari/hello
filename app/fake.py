@@ -96,7 +96,7 @@ def gen_fake_tags(count=3):
     n = Tag.query.count()
     if n == 0:
         lst = ['Java', 'Python', 'JavaScript', 'C++',
-               'C', 'Data Structure', 'HTML', 'Flask']
+               'C', '数据结构', 'HTML', 'Flask']
         for i in lst:
             t = Tag(name=i)
             db.session.add(t)

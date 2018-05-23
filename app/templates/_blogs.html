@@ -1,4 +1,4 @@
-<ul class="blog_box col-md-8">
+<ul class="blog_box col-sm-8">
     {% for blog in blogs %}
         <li class="blog">
             
@@ -20,7 +20,7 @@
                     </a>
                 </div>
 
-                <h3 style=><a href="{{ url_for('.blog',id=blog.id) }}">{{ blog.title }}</a></h3>
+                <h2><a href="{{ url_for('.blog', id=blog.id) }}">{{ blog.title }}</a></h2>
                
 
               
@@ -49,37 +49,36 @@
 
                 </div>
 
-                <div class="blog-footer">{# 文章的底部 #}
-                    {#% if current_user.can(Permission.MODERATE) %}
-                    <a href="{{ url_for('.blog_disable', id=blog.id, page=page) }}">
-                        <span class="label label-danger">和谐</span>
-                    </a>
-                    {% endif %#}
-                    {% if not summary %}
-                    <div class="tags">                    
+                {% if not summary %}
+                <div class="blog-tags clearfix">                    
                         {% for tag in blog.tags %}
-                        <span class="label label-{{ tag.style }}">{{ tag.name }}</span>&nbsp;
+                            <a href="{{ url_for('.tag', id=tag.id) }}">
+                                <span class="label label-{{ tag.style }}">
+                                    {{ tag.name }}
+                                </span>
+                            </a>
                         {% endfor %}
                     </div>
-                    {% endif %}
+                {% endif %}
 
-
-
+                <div class="blog-footer">{# 文章的底部 #}
                     {% if current_user == blog.author %}
                         <a href="{{ url_for('.edit',id=blog.id) }}">
-                            <span class="label label-primary">编辑</span>
+                           
+                            <span class="label label-primary"><i class="fa fa-pencil-square-o"></i>&nbsp;编辑</span>
                         </a>
                     {%elif current_user.is_admin() %}
                         <a href="{{ url_for('.edit',id=blog.id) }}">
-                            <span class="label label-danger">编辑 [ADMIN]</span>
+                            <span class="label label-danger"><i class="fa fa-pencil-square-o"></i>&nbsp;编辑&nbsp;[ADMIN]</span>
                         </a>
 
                     {% endif %}
 
 
                     <a href="{{ url_for('.blog', id=blog.id) }}#comments">
-                        <span class="label label-primary">评论({{ blog.comments.count() }})</span>
+                        <span class="label label-primary"><i class="fa fa-commenting"></i>&nbsp;评论({{ blog.comments.count() }})</span>
                     </a>
+                
 
 
                 </div>

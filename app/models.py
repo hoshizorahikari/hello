@@ -277,13 +277,13 @@ class User(UserMixin, db.Model):
             join(Follow, Follow.followed_id == Blog.author_id)\
             .filter(Follow.follower_id == self.id)
 
-    @staticmethod
-    def add_self_follows():
-        for user in User.query.all():
-            if not user.is_following(user):
-                user.follow(user)
-                db.session.add(user)
-                db.session.commit()
+    # @staticmethod
+    # def add_self_follows():
+    #     for user in User.query.all():
+    #         if not user.is_following(user):
+    #             user.follow(user)
+    #             db.session.add(user)
+    #             db.session.commit()
 
     def gen_auth_token(self, expiration):
         # 以用户id生成签名令牌
@@ -390,25 +390,30 @@ class Blog(db.Model):
         return Blog(body=body)
 
     def add_tag(self, tag_name):
-        if not self.has_tag(tag_name):
+        # 如果标签不为空,且博客没有此标签,添加
+        if tag_name and not self.has_tag(tag_name):
             tag = Tag.query.filter_by(name=tag_name).first()
-            if tag is None:
+            if tag is None:  # 没有此标签,创建之
                 tag = Tag(name=tag_name)
             self.tags.append(tag)
 
     def add_tags(self, tag_name_lst):
+        # 批量添加标签
         for i in tag_name_lst:
             self.add_tag(i)
 
     def has_tag(self, tag_name):
+        # 是否还有指定标签
         return self.tags.filter_by(name=tag_name).first() is not None
 
     def remove_tag(self, tag_name):
+        # 移除标签
         t = self.tags.filter_by(name=tag_name).first()
         if t:
             self.tags.remove(t)
 
     def clear_tags(self):
+        # 清空标签
         for t in self.tags.all():
             self.tags.remove(t)
 
@@ -475,13 +480,13 @@ class Tag(db.Model):
     __tablename__ = 'tags'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(64), unique=True)
-    style = db.Column(db.String(64))
+    name = db.Column(db.String(64), unique=True)  # 标签名字
+    style = db.Column(db.String(64))  # 标签样式, Bootstrap样式名或背景色
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         db.session.add(self)
-        db.session.commit()
+        db.session.commit()  # 不提交用不了self.id
         lst = ['danger', 'warning', 'info', 'success', 'primary', 'default']
         if self.style is None:
             self.style = lst[(self.id-1) % len(lst)]

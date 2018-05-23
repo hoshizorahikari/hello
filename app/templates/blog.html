@@ -6,7 +6,7 @@
 {% block title %}hikari app - Blog{% endblock %}
 
 {% block page_content %}
-{% if blogs[0].disabled %}
+{% if blogs[0].disabled %}{# 传入的blogs是列表,blog.html只有一个博客文章,直接取[0]应该可以吧 #}
 <h3>该文章由于很黄很暴力已被送回火星...</h3>
 {% else %}
     {% include '_blogs.html' %}

@@ -12,24 +12,22 @@ def index():
     # 分页
     # 查询字符串(request.args)获取页数,默认第1页;type=int保证参数无法转为int时返回默认值
     page = request.args.get('page', 1, type=int)
-    # show_followed存储在cookie中, 是否只显示关注用户文章
-    show_followed = False
-    if current_user.is_authenticated:
-        show_followed = bool(request.cookies.get('show_followed', ''))
-    query = current_user.followed_blogs if show_followed else Blog.query.filter_by(
-        disabled=False)
-
+    query = Blog.query.filter_by(disabled=False)
     # page为第几页;per_page为每页几个记录,默认20;
     # error_out默认为True,表示页数超过范围404错误,False则返回空列表
+    # 按时间戳降序, 最近的靠前
     pagination = query.order_by(Blog.timestamp.desc()).paginate(
         page, per_page=current_app.config['BLOGS_PER_PAGE'], error_out=False)
     blogs = pagination.items
-    tags=Tag.query.all()
-
-    # 按时间戳降序, 最近的靠前
-    # blogs = Blog.query.order_by(Blog.timestamp.desc()).all()
-    return render_template('index.html', blogs=blogs, summary=True,tags=tags,
-                           show_followed=show_followed, pagination=pagination)
+    tags = Tag.query.all()  # 列表
+    lst = []
+    for t in tags:  # 循环里删除列表元素有坑,分两步吧
+        if t.blogs.filter_by(disabled=False).count() == 0:
+            lst.append(t)  # 记录博客对应数为0的标签
+    for t in lst:
+        tags.remove(t)
+    return render_template('index.html', blogs=blogs, summary=True,
+                           tags=tags, pagination=pagination)
 
 
 @main.route('/create_blog', methods=['GET', 'POST'])
@@ -40,12 +38,8 @@ def create_blog():
     if form.validate_on_submit():
         blog = Blog(body=form.body.data, title=form.title.data,
                     author=current_user._get_current_object())
-        tags = form.tags.data.split('|')
-        tags=[x.strip() for x in tags]
-        # for i in tags:
-        #     t = i.strip()
-        #     if t:  # 非空字符串
-        #         blog.add_tag(t)
+
+        tags = [x.strip() for x in form.tags.data.split('|') if x.strip()]
         blog.add_tags(tags)
         db.session.add(blog)
         db.session.commit()
@@ -137,10 +131,13 @@ def edit(id):
         b.body = form.body.data
         b.title = form.title.data
 
-        tags = form.tags.data.split('|')
-        tags=[x.strip() for x in tags]
-        b.clear_tags() # 暴力方法, 清空所有标签,再添加全部
-        b.add_tags(tags) 
+        # tags = form.tags.data.split('|')
+        # tags = [x.strip() for x in tags]
+        tags = [x.strip() for x in form.tags.data.split('|') if x.strip()]
+
+        b.clear_tags()  # 暴力方法, 清空所有标签,再添加全部
+        b.add_tags(tags)
+
         db.session.add(b)
         db.session.commit()
 
@@ -150,7 +147,7 @@ def edit(id):
         return redirect(url_for('.blog', id=b.id))
     form.body.data = b.body
     form.title.data = b.title
-    form.tags.data='|'.join([t.name for t in b.tags])
+    form.tags.data = '|'.join([t.name for t in b.tags])
     return render_template('edit_blog.html', form=form)
 
 
@@ -444,3 +441,17 @@ def blog_disable(id):
     # db.session.commit()
     return redirect(url_for('.manage_blogs',
                             page=request.args.get('page', 1, type=int)))
+
+
+@main.route('/tag/<int:id>')
+def tag(id):
+    tag = Tag.query.get_or_404(id)
+    # 查询该标签的文章列表, 按时间戳降序
+    page = request.args.get('page', 1, type=int)
+
+    pagination = tag.blogs.filter_by(
+        disabled=False).order_by(Blog.timestamp.desc()).paginate(
+        page, per_page=current_app.config['BLOGS_PER_PAGE']//2+1, error_out=False)
+    blogs = pagination.items
+    return render_template('tag.html', tag=tag, blogs=blogs, summary=True,
+                           pagination=pagination)

@@ -1,0 +1,25 @@
+{% extends "base.html" %} 
+{% import "_macros.html" as macros %}
+
+{% block title %}
+    hikari app - 分类 - {{ tag.name }}
+{% endblock%} 
+
+
+{% block page_content %}
+
+
+
+<h3>关于<span class="label label-{{ tag.style }}">{{ tag.name }}</span>的文章</h3>
+{% include '_blogs.html'%}
+{%  if pagination %}
+    <div class="pagination col-md-8">
+        {{ macros.pagination_widget(pagination, '.tag', id=tag.id) }}
+    </div>
+{% endif %}
+
+{% endblock %}
+
+
+
+
