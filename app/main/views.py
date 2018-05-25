@@ -219,9 +219,6 @@ def followed_by(username):
 from flask import make_response
 
 
-
-
-
 @main.route('/blog/<int:id>', methods=['GET', 'POST'])
 def blog(id):  # 单个博客文章页面
     b = Blog.query.get_or_404(id)
@@ -362,7 +359,8 @@ def user_disable(id):
     u = User.query.get_or_404(id)
     if u.can(Permission.ADMIN):
         flash('不能和谐管理员!')
-    elif not current_user._get_current_object().can(Permission.ADMIN):
+    elif not current_user._get_current_object().can(Permission.ADMIN)\
+            and u.can(Permission.MODERATE):
         flash('不能和谐协管员!')
 
     else:

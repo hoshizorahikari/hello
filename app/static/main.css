@@ -176,8 +176,10 @@ ul.comment_box li.comment:hover {
 }
 
 div.comment-date {
-    color: #999999;
+    background-color: #f0f0f0;
+    color: #aaaaaa;
     float: right;
+    padding: 0 0.5rem;
 }
 
 div.comment-author {

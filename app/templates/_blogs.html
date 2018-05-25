@@ -23,9 +23,9 @@
                     {% if summary %}
                         {% if blog.body_html %}
                         {# 使用safe过滤器,不转义HTML标签 #}
-                            {{ blog.body_html |striptags | truncate(100) }}
+                            {{ blog.body_html |striptags | truncate(160) }}
                         {% else %}
-                        {{ blog.body |truncate(100)}}
+                        {{ blog.body |truncate(160)}}
                         {% endif %}
                         <a href="{{ url_for('.blog',id=blog.id) }}">
                             继续阅读>>

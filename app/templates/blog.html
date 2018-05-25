@@ -10,9 +10,9 @@
 <h3>该文章由于很黄很暴力已被送回火星...</h3>
 {% else %}
     {% include '_blogs.html' %}
-    <div class="col-md-8">
+    <div class="col-sm-8">
 
-    <h4 id="comments">评论</h4>
+    <h3 id="comments">评论</h3>
     {# 需要有评论权限 #}
     {% if current_user.can(Permission.COMMENT) %}
         <div class="comment-form">
@@ -22,7 +22,7 @@
     </div>
     {% include '_comments.html' %}
     {% if pagination %}
-        <div class="pagination col-md-8">
+        <div class="pagination col-sm-8">
             {{ macros.pagination_widget(pagination, '.blog', fragment='#comments', id=blogs[0].id) }}
         </div>
     {% endif %}

@@ -1,8 +1,27 @@
-from random import randint
+from random import randint, choice
 from sqlalchemy.exc import IntegrityError
 from faker import Faker
 from . import db
 from .models import User, Blog, Follow, Comment, Role, Tag
+import math
+
+
+def is_prime(n):
+    for i in range(2, int(math.sqrt(n))+1):
+        if n % i == 0:
+            return False
+    return True
+
+
+def primes(n):
+    lst = []
+    for i in range(23, n+1):
+        if is_prime(i):
+            lst.append(i)
+    return lst
+
+
+PRIMES = primes(200)
 
 
 def gen_fake_users(count=100):
@@ -12,11 +31,14 @@ def gen_fake_users(count=100):
     i = 0
     while i < count:
         email = fake.email()
+        a = choice(PRIMES)
+        b = choice(PRIMES)
+        c = choice(PRIMES)
         u = User(email=email,
                  username=fake.user_name(),
-                 password='aaa111',
-                 #  password='{}{}'.format(email.split(
-                 #      '@')[0], (127*i**3+53*i**2+23*i+97) % 10000),
+                 #  password='aaa111',
+                 password='{}{:04d}'.format(email.split(
+                     '@')[0], (a*b**2+b*c**2+c*a**2) % 10000),
                  confirmed=True,
                  name=fake.name(),
                  location=fake.city(),
