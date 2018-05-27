@@ -88,9 +88,9 @@ def deploy():
     init()
     # 为新博客添加一些生气...
     fake.gen_fake_users(100)
-    fake.gen_fake_blogs(300)
+    fake.gen_fake_blogs(50)
     fake.gen_follows(1000)
-    fake.gen_fake_comments(1000)
+    fake.gen_fake_comments(200)
     fake.gen_fake_tags()
 
 

@@ -4,6 +4,10 @@ from wtforms.validators import DataRequired, Length, Email, Regexp, EqualTo
 from wtforms import ValidationError
 from ..models import User
 
+lst = ['高坂穂乃果', '絢瀬絵里', '南ことり', '園田海未', '星空凛', '西木野真姫', '東條希', '小泉花陽', '矢澤にこ',
+       '高海千歌', '桜内梨子', '松浦果南', '黒澤ダイヤ', '渡辺曜', '津島善子', '国木田花丸', '小原鞠莉', '黒澤ルビイ',
+       '上原歩夢', '中須かすみ', '桜坂しずく', '朝香果林', '宮下愛', '近江彼方', '優木せつ菜', 'エマ・ヴェルデ', '天王寺璃奈', ]
+
 
 class LoginForm(FlaskForm):
     email = StringField('邮箱', validators=[  # 电子邮箱数据必须, 长度限制, email验证函数
@@ -34,6 +38,8 @@ class RegistrationForm(FlaskForm):
     def validate_username(self, field):
         if User.query.filter_by(username=field.data.lower()).first():
             raise ValidationError('用户名已经存在！')
+        if field.data.lower() in lst:
+            raise ValidationError('该用户名无法使用！')
 
 
 class ChangePasswordForm(FlaskForm):

@@ -1,4 +1,4 @@
-/* * {
+﻿/* * {
     font-family: "Microsoft Yahei";
 } */
 
@@ -272,6 +272,6 @@ div.pagination {
 
 .index-tags a {
     float: left;
-    padding: 0.08rem, 0.4rem;
+    padding: 0 0.08rem;
     margin-bottom: 0.5rem;
 }

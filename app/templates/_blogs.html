@@ -40,17 +40,17 @@
                     {% endif %}
                 </div>
 
-                {% if not summary %}
+                {#% if not summary %#}
                 <div class="blog-tags clearfix">                    
-                        {% for tag in blog.tags %}
-                            <a href="{{ url_for('.tag', id=tag.id) }}">
-                                <span class="label label-{{ tag.style }}">
-                                    {{ tag.name }}
-                                </span>
-                            </a>
-                        {% endfor %}
-                    </div>
-                {% endif %}
+                    {% for tag in blog.tags %}
+                        <a href="{{ url_for('.tag', id=tag.id) }}">
+                            <span class="label label-{{ tag.style }}">
+                                {{ tag.name }}
+                            </span>
+                        </a>
+                    {% endfor %}
+                </div>
+                {#% endif %#}
 
                 <div class="blog-footer">{# 文章的底部 #}
                     {% if current_user == blog.author %}

@@ -1,6 +1,5 @@
 server{
 	listen      80;
-    
 	root        /root/hikari_app;
 	access_log  /root/hikari_app/log/acess_log;
 	error_log   /root/hikari_app/log/error_log;

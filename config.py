@@ -89,5 +89,5 @@ config = {
     'development': DevelopmentConfig,
     'testing': TestingConfig,
     'production': ProductionConfig,
-    'default': DevelopmentConfig  # 默认开发环境的配置
+    'default': ProductionConfig 
 }

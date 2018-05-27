@@ -1,49 +1,37 @@
-from random import randint, choice
+from random import randint
 from sqlalchemy.exc import IntegrityError
 from faker import Faker
 from . import db
 from .models import User, Blog, Follow, Comment, Role, Tag
-import math
+import hashlib
+from base64 import b64encode
+from datetime import datetime
 
 
-def is_prime(n):
-    for i in range(2, int(math.sqrt(n))+1):
-        if n % i == 0:
-            return False
-    return True
-
-
-def primes(n):
-    lst = []
-    for i in range(23, n+1):
-        if is_prime(i):
-            lst.append(i)
-    return lst
-
-
-PRIMES = primes(200)
+def get_pwd(s):
+    t = datetime.now()
+    s = '{}:{}'.format(s, t)
+    sha1 = hashlib.sha1()
+    sha1.update(s.encode('utf-8'))
+    sb = sha1.hexdigest().encode('utf-8')
+    n = randint(1, 40)
+    return b64encode(sb).decode('utf-8')[n:n+10]
 
 
 def gen_fake_users(count=100):
     # 默认生成100个虚拟小伙伴
-
     fake = Faker('zh_CN')  # 支持中文
     i = 0
     while i < count:
-        email = fake.email()
-        a = choice(PRIMES)
-        b = choice(PRIMES)
-        c = choice(PRIMES)
-        u = User(email=email,
-                 username=fake.user_name(),
-                 #  password='aaa111',
-                 password='{}{:04d}'.format(email.split(
-                     '@')[0], (a*b**2+b*c**2+c*a**2) % 10000),
-                 confirmed=True,
-                 name=fake.name(),
-                 location=fake.city(),
-                 about_me='我是机器人',
-                 member_since=fake.past_date())
+        u = User(
+            email=fake.email(),
+            username=fake.user_name(),
+            password=get_pwd(fake.name()),
+            confirmed=True,
+            name=fake.name(),
+            location=fake.city(),
+            about_me='我是机器人',
+            member_since=fake.past_date())
         db.session.add(u)
         # 随着数据增加会有重复的风险,提交时会抛出IntegrityError异常,需要回滚会话
         try:
