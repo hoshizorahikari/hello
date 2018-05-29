@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block title %}hikari app - {{ name }}{% endblock %}
+
+
+{% block page_content %}
+<h3>{{ name }}</h3>
+<video src="{{ url_for('static',filename=name) }}" controls autoplay loop width="75%"></video>
+{% endblock %}

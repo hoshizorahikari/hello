@@ -5,6 +5,7 @@ from flask_login import login_required, current_user
 from .forms import EditProfileForm, EditProfileAdminForm, BlogForm, CommentForm
 from .. import db
 from ..decorators import admin_required, permission_required
+import os
 
 
 @main.route('/')
@@ -433,3 +434,14 @@ def tag(id):
     blogs = pagination.items
     return render_template('tag.html', tag=tag, blogs=blogs, summary=True,
                            pagination=pagination)
+
+
+@main.route('/mp4/<int:id>')
+def mp4(id):
+    dct={1:'灯火のまにまに'}
+    name=dct.get(id)
+    if name is None:
+        abort(404)
+    name+='.mp4'
+    return render_template('video.html',name=name)
+    
